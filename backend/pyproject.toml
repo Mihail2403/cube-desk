@@ -1,0 +1,59 @@
+[project]
+name = "cube-desk-backend"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "alembic==1.13.2",
+    "asyncpg>=0.30.0",
+    "pydantic==2.11.3",
+    "pydantic-core==2.33.1",
+    "sqlalchemy[asyncio]>=2.0.44",
+    "typing-extensions==4.13.2",
+    "fastapi[standard]==0.115.12",
+    "pydantic-settings>=2.11.0",
+    "loguru>=0.7.3",
+]
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.38.2",
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.25.2",
+    "pytest-dotenv>=0.5.2",
+    "httpx>=0.28.1",
+    "ruff>=0.14.0",
+]
+
+[tool.ruff]
+line-length = 100
+exclude = ["alembic/**", ".venv/**"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+fixable = ["B", "C", "W", "E", "F", "I"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 20
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.basedpyright]
+exclude = ["alembic", ".venv"]
+
+[tool.pytest.ini_options]
+pythonpath = "."
+testpaths = ["tests"]
+markers = [
+    "slow: долгие тесты",
+    "integration: интеграционные тесты",
+    "network: сетевые тесты",
+]
