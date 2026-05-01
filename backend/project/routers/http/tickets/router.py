@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
@@ -39,6 +40,7 @@ async def get_tickets(
     session: Annotated[AsyncSession, Depends(get_async_session)],
     user: Annotated[models.User, Depends(get_current_active_user)],
     status: Annotated[models.Ticket.TicketStatus | None, Query()] = None,
+    updated_at__gt: Annotated[datetime | None, Query()] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> list[local_schemas.TicketResponse]:
@@ -46,6 +48,7 @@ async def get_tickets(
         session,
         user=user,
         status=status,
+        updated_at__gt=updated_at__gt,
         limit=limit,
         offset=offset,
     )
@@ -105,6 +108,7 @@ async def list_messages(
     ticket_id: int,
     user: Annotated[models.User, Depends(get_current_active_user)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
+    id__gt: Annotated[int | None, Query(ge=1)] = None,
     limit: Annotated[int, Query(ge=1, le=500)] = 200,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> list[local_schemas.TicketMessageResponse]:
@@ -112,6 +116,7 @@ async def list_messages(
         session,
         user=user,
         ticket_id=ticket_id,
+        id__gt=id__gt,
         limit=limit,
         offset=offset,
     )

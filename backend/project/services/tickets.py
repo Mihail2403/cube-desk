@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from project import models
@@ -41,15 +43,17 @@ async def get_tickets(
     session: AsyncSession,
     *,
     user: models.User,
+    limit: int,
+    offset: int,
     status: models.Ticket.TicketStatus | None = None,
-    limit: int = 50,
-    offset: int = 0,
+    updated_at__gt: datetime | None = None,
 ) -> list[models.Ticket]:
     if user.role == models.User.UserRole.USER:
         return await tickets_repo.get_tickets(
             session,
             author_id=user.id,
             status=status,
+            updated_at__gt=updated_at__gt,
             limit=limit,
             offset=offset,
         )
@@ -57,6 +61,7 @@ async def get_tickets(
         return await tickets_repo.get_tickets(
             session,
             status=status,
+            updated_at__gt=updated_at__gt,
             limit=limit,
             offset=offset,
         )
@@ -126,11 +131,13 @@ async def get_messages(
     ticket_id: int,
     limit: int,
     offset: int,
+    id__gt: int | None = None,
 ) -> list[models.TicketMessage]:
     ticket = await get_ticket(session, ticket_id=ticket_id, user=user)
     messages = await tickets_repo.get_messages(
         session,
         ticket_id=ticket.id,
+        id__gt=id__gt,
         limit=limit,
         offset=offset,
     )
