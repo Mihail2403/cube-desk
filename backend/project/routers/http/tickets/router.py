@@ -3,13 +3,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from project import models
 from project.core.database import get_async_session
 from project.dependencies.auth import get_current_active_user
 from project.services import tickets as tickets_service
+from project.services.s3 import service as s3_service
 
 from . import schemas as local_schemas
 
@@ -90,17 +91,40 @@ async def update_ticket(
 )
 async def add_message(
     ticket_id: int,
-    body: local_schemas.TicketMessageCreateRequest,
+    body: Annotated[str, Form(min_length=1, max_length=10_000)],
     user: Annotated[models.User, Depends(get_current_active_user)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
+    files: Annotated[list[UploadFile] | None, File()] = None,
 ) -> local_schemas.TicketMessageResponse:
     message = await tickets_service.create_message(
         session,
         user=user,
         ticket_id=ticket_id,
-        body=body.body,
+        body=body,
+        files=files or [],
     )
-    return local_schemas.TicketMessageResponse.model_validate(message, from_attributes=True)
+    attachments: list[local_schemas.TicketMessageAttachmentResponse] = []
+    for a in message.attachments:
+        attachments.append(
+            local_schemas.TicketMessageAttachmentResponse(
+                id=a.id,
+                message_id=a.message_id,
+                storage_key=a.storage_key,
+                filename=a.filename,
+                content_type=a.content_type,
+                size=a.size,
+                created_at=a.created_at,
+                download_url=await s3_service.create_presigned_get_url(key=a.storage_key),
+            )
+        )
+    return local_schemas.TicketMessageResponse(
+        id=message.id,
+        ticket_id=message.ticket_id,
+        author_id=message.author_id,
+        body=message.body,
+        created_at=message.created_at,
+        attachments=attachments,
+    )
 
 
 @router.get("/{ticket_id}/messages", response_model=list[local_schemas.TicketMessageResponse])
@@ -120,7 +144,31 @@ async def list_messages(
         limit=limit,
         offset=offset,
     )
-    return [
-        local_schemas.TicketMessageResponse.model_validate(m, from_attributes=True)
-        for m in messages
-    ]
+    responses: list[local_schemas.TicketMessageResponse] = []
+    for m in messages:
+        attachments: list[local_schemas.TicketMessageAttachmentResponse] = []
+        for a in m.attachments:
+            attachments.append(
+                local_schemas.TicketMessageAttachmentResponse(
+                    id=a.id,
+                    message_id=a.message_id,
+                    storage_key=a.storage_key,
+                    filename=a.filename,
+                    content_type=a.content_type,
+                    size=a.size,
+                    created_at=a.created_at,
+                    download_url=await s3_service.create_presigned_get_url(key=a.storage_key),
+                )
+            )
+
+        responses.append(
+            local_schemas.TicketMessageResponse(
+                id=m.id,
+                ticket_id=m.ticket_id,
+                author_id=m.author_id,
+                body=m.body,
+                created_at=m.created_at,
+                attachments=attachments,
+            )
+        )
+    return responses

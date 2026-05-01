@@ -68,3 +68,29 @@ class TicketMessage(Base):
     )
     ticket: Mapped["Ticket"] = relationship(back_populates="messages")
     author: Mapped["User"] = relationship(back_populates="messages")
+    attachments: Mapped[list["TicketMessageAttachment"]] = relationship(
+        back_populates="message",
+        cascade="all, delete-orphan",
+        order_by="TicketMessageAttachment.id",
+    )
+
+
+@final
+class TicketMessageAttachment(Base):
+    __tablename__ = "ticket_message_attachments"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    message_id: Mapped[int] = mapped_column(
+        sa.ForeignKey("ticket_messages.id", ondelete="CASCADE"),
+        index=True,
+    )
+    storage_key: Mapped[str] = mapped_column(sa.String(1024), unique=True, index=True)
+    filename: Mapped[str] = mapped_column(sa.String(512))
+    content_type: Mapped[str] = mapped_column(sa.String(256), server_default=sa.text("''"))
+    size: Mapped[int] = mapped_column(sa.BigInteger())
+    created_at: Mapped[datetime] = mapped_column(
+        sa.DateTime(timezone=True),
+        server_default=sa.func.now(),
+    )
+
+    message: Mapped["TicketMessage"] = relationship(back_populates="attachments")

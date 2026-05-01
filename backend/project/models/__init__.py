@@ -1,5 +1,5 @@
 from .auth_tokens import AuthToken
-from .tickets import Ticket, TicketMessage
+from .tickets import Ticket, TicketMessage, TicketMessageAttachment
 from .users import User
 
 __all__ = (
@@ -7,4 +7,5 @@ __all__ = (
     "User",
     "Ticket",
     "TicketMessage",
+    "TicketMessageAttachment",
 )

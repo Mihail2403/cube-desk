@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from datetime import datetime
+from uuid import uuid4
 
+from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from project import models
-from project.core.exceptions import ForbiddenError, NotFoundError
+from project.core.config import config
+from project.core.exceptions import BadRequestError, FileSizeError, ForbiddenError, NotFoundError
 from project.repositories import tickets as tickets_repo
+from project.services.s3 import service as s3_service
 
 
 async def have_access_to_ticket(
@@ -109,7 +113,37 @@ async def create_message(
     user: models.User,
     ticket_id: int,
     body: str,
+    files: list[UploadFile],
 ) -> models.TicketMessage:
+    if len(files) > config.ATTACHMENTS_MAX_FILES:
+        raise BadRequestError(
+            "Too many attachments",
+            details={"max_files": config.ATTACHMENTS_MAX_FILES},
+        )
+
+    validated_files: list[tuple[UploadFile, int, str, str]] = []
+    for file in files:
+        if not file.filename:
+            raise BadRequestError("Attachment filename is required")
+
+        file.file.seek(0, 2)
+        size = int(file.file.tell())
+        file.file.seek(0)
+
+        if size > config.ATTACHMENTS_MAX_FILE_SIZE_BYTES:
+            raise FileSizeError(
+                "Attachment is too large",
+                details={
+                    "max_bytes": config.ATTACHMENTS_MAX_FILE_SIZE_BYTES,
+                    "actual_bytes": size,
+                    "filename": file.filename,
+                },
+            )
+
+        safe_filename = file.filename.replace("\\", "_").replace("/", "_")
+        upload_id = uuid4().hex
+        validated_files.append((file, size, safe_filename, upload_id))
+
     async with session.begin():
         ticket = await get_ticket(session, ticket_id=ticket_id, user=user)
 
@@ -121,6 +155,27 @@ async def create_message(
                 body=body,
             ),
         )
+
+        for file, size, safe_filename, upload_id in validated_files:
+            object_key = f"ticket-messages/{ticket.id}/{message.id}/{upload_id}-{safe_filename}"
+            file.file.seek(0)
+            await s3_service.put_object(
+                key=object_key,
+                fileobj=file.file,
+                content_type=file.content_type,
+            )
+
+            await tickets_repo.create_message_attachment(
+                session,
+                instance=models.TicketMessageAttachment(
+                    message_id=message.id,
+                    storage_key=object_key,
+                    filename=file.filename or "",
+                    content_type=file.content_type or "",
+                    size=size,
+                ),
+            )
+
         return message
 
 

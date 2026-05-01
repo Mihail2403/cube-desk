@@ -4,6 +4,7 @@ from datetime import datetime
 
 from sqlalchemy import ColumnElement, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from project import models
 
@@ -64,6 +65,16 @@ async def create_message(
     return instance
 
 
+async def create_message_attachment(
+    session: AsyncSession,
+    *,
+    instance: models.TicketMessageAttachment,
+) -> models.TicketMessageAttachment:
+    session.add(instance)
+    await session.flush()
+    return instance
+
+
 async def get_messages(
     session: AsyncSession,
     *,
@@ -78,6 +89,7 @@ async def get_messages(
 
     stmt = (
         select(models.TicketMessage)
+        .options(selectinload(models.TicketMessage.attachments))
         .where(*filters)
         .order_by(models.TicketMessage.id.asc())
         .limit(limit)

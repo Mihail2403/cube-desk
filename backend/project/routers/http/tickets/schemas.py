@@ -32,9 +32,21 @@ class TicketMessageCreateRequest(BaseModel):
     body: str = Field(min_length=1, max_length=10_000)
 
 
+class TicketMessageAttachmentResponse(BaseModel):
+    id: int
+    message_id: int
+    storage_key: str
+    filename: str
+    content_type: str
+    size: int
+    created_at: datetime
+    download_url: str
+
+
 class TicketMessageResponse(BaseModel):
     id: int
     ticket_id: int
     author_id: int
     body: str
     created_at: datetime
+    attachments: list[TicketMessageAttachmentResponse] = []
