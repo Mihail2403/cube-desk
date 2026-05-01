@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +13,7 @@ from project.services.passwords import generate_user_salt, hash_password, verify
 
 
 def _expires_at(*, seconds: int) -> datetime:
-    return datetime.now() + timedelta(seconds=seconds)
+    return datetime.now(timezone.utc) + timedelta(seconds=seconds)
 
 
 async def register(
@@ -39,8 +39,6 @@ async def register(
             ),
         )
         tokens = await issue_tokens(session, user_id=user.id)
-
-        await session.commit()
 
         return user, tokens
 

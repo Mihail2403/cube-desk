@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import ColumnElement, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,11 +17,11 @@ async def get_auth_token(
 
     if access_token is not None:
         filters.append(models.AuthToken.access_token == access_token)
-        filters.append(models.AuthToken.access_expires_at >= datetime.now())
+        filters.append(models.AuthToken.access_expires_at >= datetime.now(timezone.utc))
 
     if refresh_token is not None:
         filters.append(models.AuthToken.refresh_token == refresh_token)
-        filters.append(models.AuthToken.refresh_expires_at >= datetime.now())
+        filters.append(models.AuthToken.refresh_expires_at >= datetime.now(timezone.utc))
 
     if not filters:
         return None
