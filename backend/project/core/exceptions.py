@@ -4,6 +4,9 @@ from typing_extensions import override
 
 
 class AppException(Exception):
+    message: str
+    details: dict[str, Any]
+
     def __init__(
         self,
         message: str = "Application error",
@@ -24,7 +27,7 @@ class DetailedError(AppException):
         message: str,
         *,
         details: dict[str, Any] | None = None,
-        **extra: Any,
+        **extra: dict[str, Any],
     ) -> None:
         merged = dict(details) if details else {}
         merged.update(extra)

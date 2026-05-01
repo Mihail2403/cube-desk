@@ -1,10 +1,10 @@
-from typing import Literal
+from typing import ClassVar, Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
-    model_config = SettingsConfigDict(
+    model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
     )
@@ -15,5 +15,10 @@ class Config(BaseSettings):
 
     DATABASE_URL: str
 
+    AUTH_ACCESS_TOKEN_LIFETIME: int = 60 * 30
+    AUTH_REFRESH_TOKEN_LIFETIME: int = 60 * 60 * 24 * 7
 
-config = Config()  # type: ignore
+    SALT: str
+
+
+config = Config()  # pyright: ignore[reportCallIssue]
