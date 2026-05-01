@@ -55,3 +55,14 @@ def get_current_active_user(
         raise ForbiddenError("User is not active")
 
     return user
+
+
+def require_roles(*roles: models.User.UserRole):
+    def _require_roles(
+        user: Annotated[models.User, Depends(get_current_active_user)],
+    ) -> models.User:
+        if user.role not in roles:
+            raise ForbiddenError("Insufficient permissions")
+        return user
+
+    return _require_roles
