@@ -54,7 +54,10 @@ async def unknown_error_handler(request: Request, err: Exception) -> JSONRespons
 
 async def validation_error_handler(request: Request, err: RequestValidationError) -> JSONResponse:
     return JSONResponse(
-        content={"detail": jsonable_encoder(err.errors())},
+        content={
+            "message": "Validation error",
+            "details": {"errors": jsonable_encoder(err.errors())},
+        },
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
 
