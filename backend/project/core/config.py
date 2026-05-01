@@ -20,5 +20,8 @@ class Config(BaseSettings):
 
     SALT: str
 
+    # Comma-separated list of origins. If empty, CORS middleware is not enabled.
+    CORS_ALLOW_ORIGINS: list[str] = []
+
 
 config = Config()  # pyright: ignore[reportCallIssue]
