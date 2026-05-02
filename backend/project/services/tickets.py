@@ -31,16 +31,18 @@ async def create_ticket(
     title: str,
     description: str | None,
 ) -> models.Ticket:
-    async with session.begin():
-        ticket = await tickets_repo.create_ticket(
-            session,
-            instance=models.Ticket(
-                author_id=author_id,
-                title=title,
-                description=description or "",
-            ),
-        )
-        return ticket
+    ticket = await tickets_repo.create_ticket(
+        session,
+        instance=models.Ticket(
+            author_id=author_id,
+            title=title,
+            description=description or "",
+            status=models.Ticket.TicketStatus.OPEN,
+        ),
+    )
+    await session.commit()
+    await session.refresh(ticket)
+    return ticket
 
 
 async def get_tickets(
@@ -94,16 +96,17 @@ async def update_ticket(
     description: str | None,
     status: models.Ticket.TicketStatus | None,
 ) -> models.Ticket:
-    async with session.begin():
-        ticket = await get_ticket(session, ticket_id=ticket_id, user=user)
+    ticket = await get_ticket(session, ticket_id=ticket_id, user=user)
 
-        if title is not None:
-            ticket.title = title
-        if description is not None:
-            ticket.description = description
-        if status is not None:
-            ticket.status = status
+    if title is not None:
+        ticket.title = title
+    if description is not None:
+        ticket.description = description
+    if status is not None:
+        ticket.status = status
 
+    await session.commit()
+    await session.refresh(ticket)
     return ticket
 
 
@@ -144,39 +147,41 @@ async def create_message(
         upload_id = uuid4().hex
         validated_files.append((file, size, safe_filename, upload_id))
 
-    async with session.begin():
-        ticket = await get_ticket(session, ticket_id=ticket_id, user=user)
+    ticket = await get_ticket(session, ticket_id=ticket_id, user=user)
 
-        message = await tickets_repo.create_message(
+    message = await tickets_repo.create_message(
+        session,
+        instance=models.TicketMessage(
+            ticket_id=ticket.id,
+            author_id=user.id,
+            body=body,
+        ),
+    )
+
+    for file, size, safe_filename, upload_id in validated_files:
+        object_key = f"ticket-messages/{ticket.id}/{message.id}/{upload_id}-{safe_filename}"
+        file.file.seek(0)
+        await s3_service.put_object(
+            key=object_key,
+            fileobj=file.file,
+            content_type=file.content_type,
+        )
+
+        await tickets_repo.create_message_attachment(
             session,
-            instance=models.TicketMessage(
-                ticket_id=ticket.id,
-                author_id=user.id,
-                body=body,
+            instance=models.TicketMessageAttachment(
+                message_id=message.id,
+                storage_key=object_key,
+                filename=file.filename or "",
+                content_type=file.content_type or "",
+                size=size,
             ),
         )
 
-        for file, size, safe_filename, upload_id in validated_files:
-            object_key = f"ticket-messages/{ticket.id}/{message.id}/{upload_id}-{safe_filename}"
-            file.file.seek(0)
-            await s3_service.put_object(
-                key=object_key,
-                fileobj=file.file,
-                content_type=file.content_type,
-            )
+    await session.commit()
+    await session.refresh(message)
 
-            await tickets_repo.create_message_attachment(
-                session,
-                instance=models.TicketMessageAttachment(
-                    message_id=message.id,
-                    storage_key=object_key,
-                    filename=file.filename or "",
-                    content_type=file.content_type or "",
-                    size=size,
-                ),
-            )
-
-        return message
+    return message
 
 
 async def get_messages(
