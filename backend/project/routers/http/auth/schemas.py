@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+from project import models
+
 
 class AuthRegisterRequest(BaseModel):
     login: str = Field(min_length=3, max_length=64)
@@ -30,4 +32,4 @@ class UserMeResponse(BaseModel):
     id: int
     login: str
     is_active: bool
-
+    role: models.User.UserRole

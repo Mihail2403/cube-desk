@@ -13,6 +13,7 @@ from . import schemas as local_schemas
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+
 def _to_token_pair_response(tokens: models.AuthToken) -> local_schemas.AuthTokenPairResponse:
     return local_schemas.AuthTokenPairResponse(
         access_token=tokens.access_token,
@@ -24,6 +25,7 @@ def _to_token_pair_response(tokens: models.AuthToken) -> local_schemas.AuthToken
             (tokens.refresh_expires_at - datetime.now(timezone.utc)).total_seconds()
         ),
     )
+
 
 @router.post(
     "/register",
@@ -69,4 +71,9 @@ async def logout(
 async def me(
     user: Annotated[models.User, Depends(get_current_active_user)],
 ) -> local_schemas.UserMeResponse:
-    return local_schemas.UserMeResponse(id=user.id, login=user.login, is_active=user.is_active)
+    return local_schemas.UserMeResponse(
+        id=user.id,
+        login=user.login,
+        is_active=user.is_active,
+        role=user.role,
+    )
