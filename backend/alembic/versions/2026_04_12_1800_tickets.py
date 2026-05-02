@@ -24,7 +24,7 @@ def upgrade() -> None:
         sa.Column("author_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
         sa.Column("title", sa.String(length=256), nullable=False),
         sa.Column("description", sa.Text(), nullable=False, server_default=""),
-        sa.Column("status", sa.String(length=32), nullable=False, server_default="open"),
+        sa.Column("status", sa.String(length=32), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),

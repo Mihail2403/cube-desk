@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.add_column(
         "users",
-        sa.Column("role", sa.String(length=16), nullable=False, server_default="user"),
+        sa.Column("role", sa.String(length=16), nullable=False),
     )
     op.create_index("ix_users_role", "users", ["role"])
 

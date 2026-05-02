@@ -17,9 +17,9 @@ class User(Base):
     __tablename__ = "users"
 
     class UserRole(StrEnum):
-        USER = "user"
-        SUPPORT = "support"
-        ADMIN = "admin"
+        USER = "USER"
+        SUPPORT = "SUPPORT"
+        ADMIN = "ADMIN"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     login: Mapped[str] = mapped_column(sa.String(64), unique=True, index=True)
@@ -29,7 +29,6 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(
         sa.String(16),
         index=True,
-        server_default=sa.text("'user'"),
     )
     created_at: Mapped[datetime] = mapped_column(server_default=sa.func.now())
 

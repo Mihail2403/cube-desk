@@ -17,10 +17,10 @@ class Ticket(Base):
     __tablename__ = "tickets"
 
     class TicketStatus(StrEnum):
-        OPEN = "open"
-        IN_PROGRESS = "in_progress"
-        RESOLVED = "resolved"
-        CLOSED = "closed"
+        OPEN = "OPEN"
+        IN_PROGRESS = "IN_PROGRESS"
+        RESOLVED = "RESOLVED"
+        CLOSED = "CLOSED"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     author_id: Mapped[int] = mapped_column(
@@ -29,7 +29,10 @@ class Ticket(Base):
     )
     title: Mapped[str] = mapped_column(sa.String(256))
     description: Mapped[str] = mapped_column(sa.Text(), server_default=sa.text("''"))
-    status: Mapped[TicketStatus] = mapped_column(index=True, server_default=sa.text("'open'"))
+    status: Mapped[TicketStatus] = mapped_column(
+        sa.String(32),
+        index=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True),
         server_default=sa.func.now(),

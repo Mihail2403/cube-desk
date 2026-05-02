@@ -36,6 +36,7 @@ async def register(
                 password_hash=password_hash,
                 salt=user_salt,
                 is_active=True,
+                role=models.User.UserRole.USER,
             ),
         )
         tokens = await issue_tokens(session, user_id=user.id)
