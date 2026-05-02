@@ -4,6 +4,7 @@ import { useTicketMessages } from '@/entities/ticket-message/model/use-messages'
 import { DEFAULT_MESSAGES_LIMIT } from '@/shared/config/constants';
 import { formatBytes } from '@/shared/lib/format-bytes';
 import { formatDateTime } from '@/shared/lib/format-date';
+import { rewritePresignedUrlForBrowser } from '@/shared/lib/rewrite-presigned-url-for-browser';
 import type { TicketMessageAttachmentResponse, TicketMessageResponse } from '@/shared/types/api';
 
 interface MessageThreadProps {
@@ -13,7 +14,7 @@ interface MessageThreadProps {
 
 const AttachmentLink = ({ a }: { a: TicketMessageAttachmentResponse }) => (
   <Link
-    href={a.download_url}
+    href={rewritePresignedUrlForBrowser(a.download_url)}
     download={a.filename}
     target="_blank"
     rel="noopener noreferrer"
