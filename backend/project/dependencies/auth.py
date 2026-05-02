@@ -1,7 +1,8 @@
 import re
 from typing import Annotated
 
-from fastapi import Depends, Header
+from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from project import models
@@ -9,20 +10,23 @@ from project.core.database import get_async_session
 from project.core.exceptions import ForbiddenError, UnAuthorizedError
 from project.repositories import auth_tokens as auth_token_repo
 
-_BEARER_PATTERN = re.compile(r"^Bearer (?P<token>[a-f0-9]+)$", re.IGNORECASE)
+_http_bearer_optional = HTTPBearer(auto_error=False)
 
 
 async def get_bearer_access_token_optional(
-    authorization: Annotated[str | None, Header()] = None,
+    credentials: Annotated[
+        HTTPAuthorizationCredentials | None,
+        Depends(_http_bearer_optional),
+    ],
 ) -> str | None:
-    if authorization is None:
+    if credentials is None:
         return None
 
-    match = _BEARER_PATTERN.match(authorization.strip())
-    if match is None:
+    token = credentials.credentials.strip()
+    if not re.fullmatch(r"[a-f0-9]+", token, re.IGNORECASE):
         raise UnAuthorizedError("Invalid `Authorization` header")
 
-    return match.group("token")
+    return token
 
 
 async def get_current_user_optional(
