@@ -4,7 +4,9 @@ from datetime import datetime
 from uuid import uuid4
 
 from fastapi import UploadFile
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from project import models
 from project.core.config import config
@@ -179,9 +181,12 @@ async def create_message(
         )
 
     await session.commit()
-    await session.refresh(message)
-
-    return message
+    reloaded = await session.execute(
+        select(models.TicketMessage)
+        .where(models.TicketMessage.id == message.id)
+        .options(selectinload(models.TicketMessage.attachments))
+    )
+    return reloaded.scalar_one()
 
 
 async def get_messages(
