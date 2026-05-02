@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 from uuid import uuid4
 
 from fastapi import UploadFile
@@ -12,6 +13,7 @@ from project import models
 from project.core.config import config
 from project.core.exceptions import BadRequestError, FileSizeError, ForbiddenError, NotFoundError
 from project.repositories import tickets as tickets_repo
+from project.repositories import users as users_repo
 from project.services.s3 import service as s3_service
 
 
@@ -94,22 +96,41 @@ async def update_ticket(
     *,
     user: models.User,
     ticket_id: int,
-    title: str | None,
-    description: str | None,
-    status: models.Ticket.TicketStatus | None,
+    patch_data: dict[str, Any],
 ) -> models.Ticket:
     ticket = await get_ticket(session, ticket_id=ticket_id, user=user)
 
-    if title is not None:
-        ticket.title = title
-    if description is not None:
-        ticket.description = description
-    if status is not None:
-        ticket.status = status
+    if "title" in patch_data:
+        ticket.title = patch_data["title"]
+    if "description" in patch_data:
+        ticket.description = patch_data["description"] or ""
+    if "status" in patch_data:
+        ticket.status = patch_data["status"]
+
+    if "assignee_id" in patch_data:
+        if user.role == models.User.UserRole.USER:
+            raise ForbiddenError("Only staff can change assignee")
+        assignee_id = patch_data["assignee_id"]
+        if assignee_id is None:
+            ticket.assignee_id = None
+        else:
+            assignee = await users_repo.get_user(session, user_id=assignee_id)
+            if assignee is None or not assignee.is_active:
+                raise BadRequestError("Invalid assignee")
+
+            if assignee.role not in (
+                models.User.UserRole.SUPPORT,
+                models.User.UserRole.ADMIN,
+            ):
+                raise BadRequestError("Assignee must be support or admin")
+
+            ticket.assignee_id = assignee_id
 
     await session.commit()
-    await session.refresh(ticket)
-    return ticket
+    reloaded = await tickets_repo.get_ticket(session, ticket_id=ticket.id)
+    if reloaded is None:
+        raise NotFoundError("Ticket not found")
+    return reloaded
 
 
 async def create_message(

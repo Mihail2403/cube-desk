@@ -110,8 +110,8 @@ export const TicketPage = () => {
                 <StatusChip status={ticket.status} />
               </Stack>
               <Typography variant="body2" color="text.secondary">
-                Создан: {formatDateTime(ticket.created_at)} · Обновлён: {formatDateTime(ticket.updated_at)} · Автор ID:{' '}
-                {ticket.author_id}
+                Создан: {formatDateTime(ticket.created_at)} · Обновлён: {formatDateTime(ticket.updated_at)} · Автор
+                ID: {ticket.author_id} · Ответственный: {ticket.assignee?.login ?? '—'}
               </Typography>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 1 }}>
                 {ticket.description || '—'}
@@ -194,6 +194,7 @@ export const TicketPage = () => {
           <TicketEditForm
             ticket={ticket}
             canChangeStatus={canChangeStatus}
+            canAssignAssignee={isStaff}
             showHeading={false}
             onSaved={() => setEditOpen(false)}
           />

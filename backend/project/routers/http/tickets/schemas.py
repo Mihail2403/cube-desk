@@ -16,6 +16,12 @@ class TicketUpdateRequest(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=256)
     description: str | None = Field(default=None, max_length=10_000)
     status: models.Ticket.TicketStatus | None = None
+    assignee_id: int | None = None
+
+
+class TicketAssigneeResponse(BaseModel):
+    id: int
+    login: str
 
 
 class TicketResponse(BaseModel):
@@ -24,6 +30,8 @@ class TicketResponse(BaseModel):
     title: str
     description: str
     status: models.Ticket.TicketStatus
+    assignee_id: int | None = None
+    assignee: TicketAssigneeResponse | None = None
     created_at: datetime
     updated_at: datetime
 

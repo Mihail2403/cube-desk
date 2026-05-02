@@ -77,9 +77,7 @@ async def update_ticket(
         session,
         user=user,
         ticket_id=ticket_id,
-        title=body.title,
-        description=body.description,
-        status=body.status,
+        patch_data=body.model_dump(exclude_unset=True),
     )
     return local_schemas.TicketResponse.model_validate(ticket, from_attributes=True)
 

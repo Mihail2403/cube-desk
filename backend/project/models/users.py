@@ -39,6 +39,12 @@ class User(Base):
     tickets: Mapped[list["Ticket"]] = relationship(
         back_populates="author",
         cascade="all, delete-orphan",
+        foreign_keys="Ticket.author_id",
+        order_by="Ticket.id",
+    )
+    assigned_tickets: Mapped[list["Ticket"]] = relationship(
+        back_populates="assignee",
+        foreign_keys="Ticket.assignee_id",
         order_by="Ticket.id",
     )
     messages: Mapped[list["TicketMessage"]] = relationship(

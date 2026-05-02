@@ -32,6 +32,13 @@ export const TicketList = ({
     },
     { field: 'author_id', headerName: 'Автор', width: 100 },
     {
+      field: 'assignee',
+      headerName: 'Ответственный',
+      minWidth: 140,
+      flex: 0.4,
+      valueGetter: (_v, row) => row.assignee?.login ?? '—',
+    },
+    {
       field: 'updated_at',
       headerName: 'Обновлён',
       width: 170,

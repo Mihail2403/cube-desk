@@ -27,6 +27,11 @@ class Ticket(Base):
         sa.ForeignKey("users.id", ondelete="CASCADE"),
         index=True,
     )
+    assignee_id: Mapped[int | None] = mapped_column(
+        sa.ForeignKey("users.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
     title: Mapped[str] = mapped_column(sa.String(256))
     description: Mapped[str] = mapped_column(sa.Text(), server_default=sa.text("''"))
     status: Mapped[TicketStatus] = mapped_column(
@@ -43,7 +48,14 @@ class Ticket(Base):
         onupdate=sa.func.now(),
     )
 
-    author: Mapped["User"] = relationship(back_populates="tickets")
+    author: Mapped["User"] = relationship(
+        back_populates="tickets",
+        foreign_keys=[author_id],
+    )
+    assignee: Mapped["User | None"] = relationship(
+        back_populates="assigned_tickets",
+        foreign_keys=[assignee_id],
+    )
     messages: Mapped[list["TicketMessage"]] = relationship(
         back_populates="ticket",
         cascade="all, delete-orphan",

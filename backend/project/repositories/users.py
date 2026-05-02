@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from sqlalchemy import ColumnElement, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,3 +33,20 @@ async def create_user(
     session.add(instance)
     await session.flush()
     return instance
+
+
+async def get_users(
+    session: AsyncSession,
+    *,
+    roles: Sequence[models.User.UserRole] | None = None,
+    only_active: bool = True,
+) -> list[models.User]:
+    stmt = select(models.User).order_by(models.User.login.asc())
+    conditions: list[ColumnElement[bool]] = []
+    if only_active:
+        conditions.append(models.User.is_active.is_(True))
+    if roles:
+        conditions.append(models.User.role.in_(tuple(roles)))
+    if conditions:
+        stmt = stmt.where(*conditions)
+    return list((await session.execute(stmt)).scalars().all())
