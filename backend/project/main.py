@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
+from typing import Awaitable, Callable
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
 
 from project.core.config import config
 from project.core.database.engine import engine
@@ -28,6 +30,17 @@ def create_app() -> FastAPI:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
+    @app.middleware("http")
+    async def request_logging_middleware(  # pyright: ignore[reportUnusedFunction]
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
+        response = await call_next(request)
+        logger.bind(request=request, response=response).info(
+            f"Request processed: {request.method} {request.url.path} -> {response.status_code}"
+        )
+        return response
 
     app.include_router(api_router)
     setup_exception_handlers(app)
