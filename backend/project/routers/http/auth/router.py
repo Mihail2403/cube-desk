@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
@@ -12,6 +13,17 @@ from . import schemas as local_schemas
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+def _to_token_pair_response(tokens: models.AuthToken) -> local_schemas.AuthTokenPairResponse:
+    return local_schemas.AuthTokenPairResponse(
+        access_token=tokens.access_token,
+        access_expires_in=int(
+            (tokens.access_expires_at - datetime.now(timezone.utc)).total_seconds()
+        ),
+        refresh_token=tokens.refresh_token,
+        refresh_expires_in=int(
+            (tokens.refresh_expires_at - datetime.now(timezone.utc)).total_seconds()
+        ),
+    )
 
 @router.post(
     "/register",
@@ -23,7 +35,7 @@ async def register(
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> local_schemas.AuthTokenPairResponse:
     _, tokens = await auth_service.register(session, login=body.login, password=body.password)
-    return local_schemas.AuthTokenPairResponse.model_validate(tokens, from_attributes=True)
+    return _to_token_pair_response(tokens)
 
 
 @router.post("/login", response_model=local_schemas.AuthTokenPairResponse)
@@ -32,7 +44,7 @@ async def login(
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> local_schemas.AuthTokenPairResponse:
     _, tokens = await auth_service.login(session, login=body.login, password=body.password)
-    return local_schemas.AuthTokenPairResponse.model_validate(tokens, from_attributes=True)
+    return _to_token_pair_response(tokens)
 
 
 @router.post("/refresh", response_model=local_schemas.AuthTokenPairResponse)
@@ -41,7 +53,7 @@ async def refresh(
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> local_schemas.AuthTokenPairResponse:
     tokens = await auth_service.refresh_tokens(session, refresh_token=body.refresh_token)
-    return local_schemas.AuthTokenPairResponse.model_validate(tokens, from_attributes=True)
+    return _to_token_pair_response(tokens)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
