@@ -110,8 +110,8 @@ export const TicketPage = () => {
                 <StatusChip status={ticket.status} />
               </Stack>
               <Typography variant="body2" color="text.secondary">
-                Создан: {formatDateTime(ticket.created_at)} · Обновлён: {formatDateTime(ticket.updated_at)} · Автор
-                ID: {ticket.author_id} · Ответственный: {ticket.assignee?.login ?? '—'}
+                Создан: {formatDateTime(ticket.created_at)} · Обновлён: {formatDateTime(ticket.updated_at)} · Автор:{' '}
+                {ticket.author.login} · Ответственный: {ticket.assignee?.login ?? '—'}
               </Typography>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 1 }}>
                 {ticket.description || '—'}

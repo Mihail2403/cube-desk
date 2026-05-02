@@ -24,9 +24,15 @@ class TicketAssigneeResponse(BaseModel):
     login: str
 
 
+class TicketAuthorResponse(BaseModel):
+    id: int
+    login: str
+
+
 class TicketResponse(BaseModel):
     id: int
     author_id: int
+    author: TicketAuthorResponse
     title: str
     description: str
     status: models.Ticket.TicketStatus

@@ -27,7 +27,10 @@ async def get_ticket(
     stmt = (
         select(models.Ticket)
         .where(models.Ticket.id == ticket_id)
-        .options(selectinload(models.Ticket.assignee))
+        .options(
+            selectinload(models.Ticket.author),
+            selectinload(models.Ticket.assignee),
+        )
         .limit(1)
     )
     return (await session.execute(stmt)).scalar()
@@ -53,7 +56,10 @@ async def get_tickets(
     stmt = (
         select(models.Ticket)
         .where(*filters)
-        .options(selectinload(models.Ticket.assignee))
+        .options(
+            selectinload(models.Ticket.author),
+            selectinload(models.Ticket.assignee),
+        )
         .order_by(models.Ticket.id.desc())
         .limit(limit)
         .offset(offset)

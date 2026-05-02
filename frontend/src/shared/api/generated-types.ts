@@ -160,6 +160,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Users
+         * @description Список пользователей: для роли USER — только себя; для SUPPORT/ADMIN — все активные.
+         */
+        get: operations["list_users_api_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/support": {
         parameters: {
             query?: never;
@@ -243,6 +263,13 @@ export interface components {
             /** Login */
             login: string;
         };
+        /** TicketAuthorResponse */
+        TicketAuthorResponse: {
+            /** Id */
+            id: number;
+            /** Login */
+            login: string;
+        };
         /** TicketCreateRequest */
         TicketCreateRequest: {
             /** Title */
@@ -299,6 +326,7 @@ export interface components {
             id: number;
             /** Author Id */
             author_id: number;
+            author: components["schemas"]["TicketAuthorResponse"];
             /** Title */
             title: string;
             /** Description */
@@ -737,6 +765,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_users_api_users_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportUserResponse"][];
                 };
             };
         };

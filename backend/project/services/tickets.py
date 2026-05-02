@@ -45,8 +45,10 @@ async def create_ticket(
         ),
     )
     await session.commit()
-    await session.refresh(ticket)
-    return ticket
+    reloaded = await tickets_repo.get_ticket(session, ticket_id=ticket.id)
+    if reloaded is None:
+        raise NotFoundError("Ticket not found")
+    return reloaded
 
 
 async def get_tickets(

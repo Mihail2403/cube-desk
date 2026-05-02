@@ -30,7 +30,13 @@ export const TicketList = ({
       width: 140,
       renderCell: (params) => <StatusChip status={params.row.status} />,
     },
-    { field: 'author_id', headerName: 'Автор', width: 100 },
+    {
+      field: 'author',
+      headerName: 'Автор',
+      minWidth: 120,
+      flex: 0.25,
+      valueGetter: (_v, row) => row.author.login,
+    },
     {
       field: 'assignee',
       headerName: 'Ответственный',

@@ -5,8 +5,8 @@ import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useUpdateTicket } from '@/entities/ticket/model/use-tickets';
-import { useSupportStaffUsers } from '@/entities/user/model/use-support-users';
-import type { TicketResponse, TicketStatus } from '@/shared/types/api';
+import { useUsers } from '@/entities/user/model/use-users';
+import type { TicketResponse, TicketStatus, UserRole } from '@/shared/types/api';
 import { applyApiValidationToForm, mapAxiosErrorToApiError } from '@/shared/api/error-mapper';
 
 const statuses: TicketStatus[] = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
@@ -45,9 +45,14 @@ export const TicketEditForm = ({
 }: TicketEditFormProps) => {
   const { enqueueSnackbar } = useSnackbar();
   const updateTicket = useUpdateTicket(ticket.id);
-  const { data: supportUsers = [], isLoading: supportUsersLoading } = useSupportStaffUsers({
+  const { data: allUsers = [], isLoading: usersLoading } = useUsers({
     enabled: canAssignAssignee,
   });
+
+  const assigneeCandidates = useMemo(() => {
+    const staffRoles: UserRole[] = ['SUPPORT', 'ADMIN'];
+    return allUsers.filter((u) => staffRoles.includes(u.role));
+  }, [allUsers]);
 
   const schema = useMemo(
     () =>
@@ -174,12 +179,12 @@ export const TicketEditForm = ({
                 select
                 label="Ответственный"
                 fullWidth
-                disabled={supportUsersLoading}
+                disabled={usersLoading}
                 error={Boolean(errors.assignee_id)}
                 helperText={errors.assignee_id?.message}
               >
                 <MenuItem value="">Не назначен</MenuItem>
-                {supportUsers.map((u) => (
+                {assigneeCandidates.map((u) => (
                   <MenuItem key={u.id} value={u.id}>
                     {u.login} ({u.role})
                   </MenuItem>

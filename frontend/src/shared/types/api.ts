@@ -12,6 +12,7 @@ export type TicketStatus = components['schemas']['TicketStatus'];
 export type TicketMessageResponse = components['schemas']['TicketMessageResponse'];
 export type TicketMessageAttachmentResponse = components['schemas']['TicketMessageAttachmentResponse'];
 export type TicketAssigneeResponse = components['schemas']['TicketAssigneeResponse'];
+export type TicketAuthorResponse = components['schemas']['TicketAuthorResponse'];
 export type SupportUserResponse = components['schemas']['SupportUserResponse'];
 
 /** Роли пользователя (см. FRONTEND_AGENT.md — поле может отсутствовать в openapi.json). */
