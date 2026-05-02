@@ -92,7 +92,7 @@ const MessageBubble = ({
       }}
     >
       <Typography variant="caption" sx={{ opacity: 0.85, display: 'block', mb: 0.5 }}>
-        {formatDateTime(message.created_at)}
+        {message.author.login} · {formatDateTime(message.created_at)}
       </Typography>
       <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
         {message.body}

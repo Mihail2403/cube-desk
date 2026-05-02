@@ -307,6 +307,7 @@ export interface components {
             ticket_id: number;
             /** Author Id */
             author_id: number;
+            author: components["schemas"]["TicketAuthorResponse"];
             /** Body */
             body: string;
             /**

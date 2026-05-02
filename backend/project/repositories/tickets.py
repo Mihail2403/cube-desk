@@ -101,7 +101,10 @@ async def get_messages(
 
     stmt = (
         select(models.TicketMessage)
-        .options(selectinload(models.TicketMessage.attachments))
+        .options(
+            selectinload(models.TicketMessage.attachments),
+            selectinload(models.TicketMessage.author),
+        )
         .where(*filters)
         .order_by(models.TicketMessage.id.asc())
         .limit(limit)

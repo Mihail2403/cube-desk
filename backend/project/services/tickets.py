@@ -207,7 +207,10 @@ async def create_message(
     reloaded = await session.execute(
         select(models.TicketMessage)
         .where(models.TicketMessage.id == message.id)
-        .options(selectinload(models.TicketMessage.attachments))
+        .options(
+            selectinload(models.TicketMessage.attachments),
+            selectinload(models.TicketMessage.author),
+        )
     )
     return reloaded.scalar_one()
 

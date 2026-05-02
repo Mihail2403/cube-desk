@@ -61,6 +61,7 @@ class TicketMessageResponse(BaseModel):
     id: int
     ticket_id: int
     author_id: int
+    author: TicketAuthorResponse
     body: str
     created_at: datetime
     attachments: list[TicketMessageAttachmentResponse] = []
