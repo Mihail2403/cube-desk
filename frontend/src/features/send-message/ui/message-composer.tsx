@@ -1,24 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AttachFile as AttachFileIcon, Send as SendIcon } from '@mui/icons-material';
-import {
-  Alert,
-  Box,
-  Button,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, IconButton, Stack, TextField, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { usePostMessage } from '@/entities/ticket-message/model/use-messages';
 import { MAX_ATTACHMENT_BYTES, MAX_ATTACHMENT_FILES } from '@/shared/config/constants';
 import { formatBytes } from '@/shared/lib/format-bytes';
+import { isImageMimeType } from '@/shared/lib/is-image-mime';
 import { applyApiValidationToForm, mapAxiosErrorToApiError } from '@/shared/api/error-mapper';
 
 const schema = z.object({
@@ -59,6 +49,20 @@ export const MessageComposer = ({ ticketId }: MessageComposerProps) => {
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
+
+  const imagePreviewUrls = useMemo(
+    () =>
+      files.map((f) => (isImageMimeType(f.type, f.name) ? URL.createObjectURL(f) : null)),
+    [files],
+  );
+
+  useEffect(() => {
+    return () => {
+      imagePreviewUrls.forEach((u) => {
+        if (u) URL.revokeObjectURL(u);
+      });
+    };
+  }, [imagePreviewUrls]);
 
   const onSubmit = handleSubmit(async (values) => {
     for (const f of files) {
@@ -155,20 +159,67 @@ export const MessageComposer = ({ ticketId }: MessageComposerProps) => {
           </Button>
         </Box>
         {files.length > 0 && (
-          <List dense>
-            {files.map((f, i) => (
-              <ListItem
-                key={`${f.name}-${i}`}
-                secondaryAction={
-                  <IconButton edge="end" onClick={() => removeFile(i)} aria-label="Удалить файл">
+          <Stack spacing={1.5}>
+            {files.map((f, i) => {
+              const previewSrc = imagePreviewUrls[i];
+              return (
+                <Box
+                  key={`${f.name}-${i}-${f.size}`}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    p: 1.5,
+                    borderRadius: 1,
+                    bgcolor: 'action.hover',
+                  }}
+                >
+                  {previewSrc ? (
+                    <Box
+                      component="img"
+                      src={previewSrc}
+                      alt={f.name}
+                      sx={{
+                        width: 88,
+                        height: 88,
+                        objectFit: 'contain',
+                        borderRadius: 1,
+                        flexShrink: 0,
+                        bgcolor: 'action.selected',
+                      }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: 88,
+                        height: 88,
+                        borderRadius: 1,
+                        bgcolor: 'action.selected',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                      aria-hidden
+                    >
+                      <AttachFileIcon color="action" />
+                    </Box>
+                  )}
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="body2" noWrap title={f.name}>
+                      {f.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {formatBytes(f.size)}
+                    </Typography>
+                  </Box>
+                  <IconButton onClick={() => removeFile(i)} aria-label="Удалить файл" edge="end">
                     ×
                   </IconButton>
-                }
-              >
-                <ListItemText primary={f.name} secondary={formatBytes(f.size)} />
-              </ListItem>
-            ))}
-          </List>
+                </Box>
+              );
+            })}
+          </Stack>
         )}
         <Button
           type="submit"

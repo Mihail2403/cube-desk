@@ -4,6 +4,7 @@ import { useTicketMessages } from '@/entities/ticket-message/model/use-messages'
 import { DEFAULT_MESSAGES_LIMIT } from '@/shared/config/constants';
 import { formatBytes } from '@/shared/lib/format-bytes';
 import { formatDateTime } from '@/shared/lib/format-date';
+import { isImageMimeType } from '@/shared/lib/is-image-mime';
 import { rewritePresignedUrlForBrowser } from '@/shared/lib/rewrite-presigned-url-for-browser';
 import type { TicketMessageAttachmentResponse, TicketMessageResponse } from '@/shared/types/api';
 
@@ -11,6 +12,9 @@ interface MessageThreadProps {
   ticketId: number;
   currentUserId: number;
 }
+
+const isImageAttachment = (a: TicketMessageAttachmentResponse): boolean =>
+  isImageMimeType(a.content_type, a.filename);
 
 const AttachmentLink = ({ a }: { a: TicketMessageAttachmentResponse }) => (
   <Link
@@ -24,6 +28,44 @@ const AttachmentLink = ({ a }: { a: TicketMessageAttachmentResponse }) => (
     {a.filename} ({formatBytes(a.size)})
   </Link>
 );
+
+const MessageAttachment = ({ a }: { a: TicketMessageAttachmentResponse }) => {
+  const url = rewritePresignedUrlForBrowser(a.download_url);
+
+  if (isImageAttachment(a)) {
+    return (
+      <Stack spacing={0.5} sx={{ maxWidth: '100%' }}>
+        <Link
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ display: 'block', lineHeight: 0, borderRadius: 1, overflow: 'hidden' }}
+        >
+          <Box
+            component="img"
+            src={url}
+            alt={a.filename}
+            loading="lazy"
+            sx={{
+              maxWidth: '100%',
+              maxHeight: 360,
+              width: 'auto',
+              height: 'auto',
+              objectFit: 'contain',
+              verticalAlign: 'middle',
+              bgcolor: 'action.selected',
+            }}
+          />
+        </Link>
+        <Typography variant="caption" sx={{ opacity: 0.85, wordBreak: 'break-all' }}>
+          {a.filename} · {formatBytes(a.size)}
+        </Typography>
+      </Stack>
+    );
+  }
+
+  return <AttachmentLink a={a} />;
+};
 
 const MessageBubble = ({
   message,
@@ -56,9 +98,9 @@ const MessageBubble = ({
         {message.body}
       </Typography>
       {message.attachments?.length > 0 && (
-        <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mt: 1 }}>
+        <Stack direction="row" flexWrap="wrap" gap={1.5} sx={{ mt: 1, alignItems: 'flex-start' }}>
           {message.attachments.map((a) => (
-            <AttachmentLink key={a.id} a={a} />
+            <MessageAttachment key={a.id} a={a} />
           ))}
         </Stack>
       )}
