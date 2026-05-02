@@ -41,7 +41,14 @@ export const TicketsPage = () => {
   };
 
   return (
-    <Stack spacing={3}>
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        overflow: 'auto',
+      }}
+    >
+      <Stack spacing={3}>
       <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
         <Typography variant="h4" fontWeight={700}>
           Тикеты
@@ -74,6 +81,7 @@ export const TicketsPage = () => {
         loading={isLoading}
       />
       <TicketCreateDialog open={createOpen} onClose={() => setCreateOpen(false)} />
-    </Stack>
+      </Stack>
+    </Box>
   );
 };

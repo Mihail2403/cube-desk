@@ -1,12 +1,32 @@
-import { Container } from '@mui/material';
+import { Box, Container } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { AppHeader } from '@/widgets/app-header/ui/app-header';
 
 export const AppLayout = () => (
-  <>
+  <Box
+    sx={{
+      flex: 1,
+      minHeight: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      height: '100%',
+    }}
+  >
     <AppHeader />
-    <Container maxWidth="lg" sx={{ py: 3 }}>
+    <Container
+      component="main"
+      maxWidth="lg"
+      sx={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        py: 3,
+        overflow: 'hidden',
+      }}
+    >
       <Outlet />
     </Container>
-  </>
+  </Box>
 );

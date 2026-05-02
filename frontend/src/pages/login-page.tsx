@@ -14,7 +14,15 @@ export const LoginPage = () => {
   }
 
   return (
-    <Stack minHeight="100vh" alignItems="center" justifyContent="center" sx={{ px: 2 }}>
+    <Stack
+      flex={1}
+      minHeight={0}
+      width="100%"
+      overflow="auto"
+      alignItems="center"
+      justifyContent="center"
+      sx={{ px: 2, py: 2 }}
+    >
       <Paper elevation={0} sx={{ p: 4, width: '100%', maxWidth: 420 }}>
         <LoginForm onSuccess={() => navigate(from, { replace: true })} />
       </Paper>

@@ -22,6 +22,8 @@ interface TicketEditFormProps {
   ticket: TicketResponse;
   canChangeStatus: boolean;
   onSaved?: () => void;
+  /** Подзаголовок над полями (в диалоге обычно скрывают — заголовок в DialogTitle) */
+  showHeading?: boolean;
 }
 
 const statusLabel: Record<TicketStatus, string> = {
@@ -35,6 +37,7 @@ export const TicketEditForm = ({
   ticket,
   canChangeStatus,
   onSaved,
+  showHeading = true,
 }: TicketEditFormProps) => {
   const { enqueueSnackbar } = useSnackbar();
   const updateTicket = useUpdateTicket(ticket.id);
@@ -90,9 +93,11 @@ export const TicketEditForm = ({
   return (
     <Box component="form" onSubmit={onSubmit}>
       <Stack spacing={2}>
-        <Typography variant="subtitle2" color="text.secondary">
-          Редактирование тикета
-        </Typography>
+        {showHeading && (
+          <Typography variant="subtitle2" color="text.secondary">
+            Редактирование тикета
+          </Typography>
+        )}
         {errors.root?.message && (
           <Typography color="error" variant="body2">
             {errors.root.message}

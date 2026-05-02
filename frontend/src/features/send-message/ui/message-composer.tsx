@@ -107,120 +107,140 @@ export const MessageComposer = ({ ticketId }: MessageComposerProps) => {
         <Typography variant="subtitle2" color="text.secondary">
           Новое сообщение
         </Typography>
-        {errors.root?.message && <Alert severity="error">{errors.root.message}</Alert>}
-        <TextField
-          label="Текст"
-          fullWidth
-          multiline
-          minRows={3}
-          error={Boolean(errors.body)}
-          helperText={errors.body?.message}
-          {...register('body')}
-        />
         <Box
-          onDragEnter={(e) => {
-            e.preventDefault();
-            setDragActive(true);
-          }}
-          onDragLeave={(e) => {
-            e.preventDefault();
-            setDragActive(false);
-          }}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragActive(false);
-            if (e.dataTransfer.files?.length) onFilesPicked(e.dataTransfer.files);
-          }}
           sx={{
-            border: '2px dashed',
-            borderColor: dragActive ? 'primary.main' : 'divider',
-            borderRadius: 2,
-            p: 2,
-            textAlign: 'center',
-            bgcolor: dragActive ? 'action.hover' : 'transparent',
+            minHeight: 0,
+            maxHeight: { xs: 'min(52vh, 420px)', md: 'min(48vh, 400px)' },
+            overflowY: 'auto',
+            overscrollBehavior: 'contain',
+            pr: 0.5,
+            mr: -0.5,
           }}
         >
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Перетащите файлы сюда или выберите с диска (до {MAX_ATTACHMENT_FILES} файлов, до{' '}
-            {formatBytes(MAX_ATTACHMENT_BYTES)} каждый)
-          </Typography>
-          <Button component="label" variant="outlined" size="small" startIcon={<AttachFileIcon />}>
-            Выбрать файлы
-            <input
-              type="file"
-              hidden
-              multiple
-              onChange={(e) => {
-                if (e.target.files?.length) onFilesPicked(e.target.files);
-                e.target.value = '';
-              }}
+          <Stack
+            spacing={2}
+            sx={{
+              /* место под плавающую метку Outlined TextField, чтобы overflow её не резал */
+              pt: 2,
+              pb: 0.5,
+            }}
+          >
+            {errors.root?.message && <Alert severity="error">{errors.root.message}</Alert>}
+            <TextField
+              label="Текст"
+              fullWidth
+              multiline
+              minRows={3}
+              error={Boolean(errors.body)}
+              helperText={errors.body?.message}
+              {...register('body')}
             />
-          </Button>
-        </Box>
-        {files.length > 0 && (
-          <Stack spacing={1.5}>
-            {files.map((f, i) => {
-              const previewSrc = imagePreviewUrls[i];
-              return (
-                <Box
-                  key={`${f.name}-${i}-${f.size}`}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
-                    p: 1.5,
-                    borderRadius: 1,
-                    bgcolor: 'action.hover',
+            <Box
+              onDragEnter={(e) => {
+                e.preventDefault();
+                setDragActive(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                setDragActive(false);
+              }}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragActive(false);
+                if (e.dataTransfer.files?.length) onFilesPicked(e.dataTransfer.files);
+              }}
+              sx={{
+                border: '2px dashed',
+                borderColor: dragActive ? 'primary.main' : 'divider',
+                borderRadius: 2,
+                p: 2,
+                textAlign: 'center',
+                bgcolor: dragActive ? 'action.hover' : 'transparent',
+              }}
+            >
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Перетащите файлы сюда или выберите с диска (до {MAX_ATTACHMENT_FILES} файлов, до{' '}
+                {formatBytes(MAX_ATTACHMENT_BYTES)} каждый)
+              </Typography>
+              <Button component="label" variant="outlined" size="small" startIcon={<AttachFileIcon />}>
+                Выбрать файлы
+                <input
+                  type="file"
+                  hidden
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files?.length) onFilesPicked(e.target.files);
+                    e.target.value = '';
                   }}
-                >
-                  {previewSrc ? (
+                />
+              </Button>
+            </Box>
+            {files.length > 0 && (
+              <Stack spacing={1.5}>
+                {files.map((f, i) => {
+                  const previewSrc = imagePreviewUrls[i];
+                  return (
                     <Box
-                      component="img"
-                      src={previewSrc}
-                      alt={f.name}
+                      key={`${f.name}-${i}-${f.size}`}
                       sx={{
-                        width: 88,
-                        height: 88,
-                        objectFit: 'contain',
-                        borderRadius: 1,
-                        flexShrink: 0,
-                        bgcolor: 'action.selected',
-                      }}
-                    />
-                  ) : (
-                    <Box
-                      sx={{
-                        width: 88,
-                        height: 88,
-                        borderRadius: 1,
-                        bgcolor: 'action.selected',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
+                        gap: 2,
+                        p: 1.5,
+                        borderRadius: 1,
+                        bgcolor: 'action.hover',
                       }}
-                      aria-hidden
                     >
-                      <AttachFileIcon color="action" />
+                      {previewSrc ? (
+                        <Box
+                          component="img"
+                          src={previewSrc}
+                          alt={f.name}
+                          sx={{
+                            width: 88,
+                            height: 88,
+                            objectFit: 'contain',
+                            borderRadius: 1,
+                            flexShrink: 0,
+                            bgcolor: 'action.selected',
+                          }}
+                        />
+                      ) : (
+                        <Box
+                          sx={{
+                            width: 88,
+                            height: 88,
+                            borderRadius: 1,
+                            bgcolor: 'action.selected',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                          }}
+                          aria-hidden
+                        >
+                          <AttachFileIcon color="action" />
+                        </Box>
+                      )}
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="body2" noWrap title={f.name}>
+                          {f.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {formatBytes(f.size)}
+                        </Typography>
+                      </Box>
+                      <IconButton onClick={() => removeFile(i)} aria-label="Удалить файл" edge="end">
+                        ×
+                      </IconButton>
                     </Box>
-                  )}
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="body2" noWrap title={f.name}>
-                      {f.name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatBytes(f.size)}
-                    </Typography>
-                  </Box>
-                  <IconButton onClick={() => removeFile(i)} aria-label="Удалить файл" edge="end">
-                    ×
-                  </IconButton>
-                </Box>
-              );
-            })}
+                  );
+                })}
+              </Stack>
+            )}
           </Stack>
-        )}
+        </Box>
         <Button
           type="submit"
           variant="contained"

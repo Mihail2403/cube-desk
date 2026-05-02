@@ -1,3 +1,4 @@
+import { Box } from '@mui/material';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from '@/app/app-layout';
 import { ProtectedRoute } from '@/app/protected-route';
@@ -9,6 +10,15 @@ import { TicketPage } from '@/pages/ticket-page';
 import { TicketsPage } from '@/pages/tickets-page';
 
 export const AppRouter = () => (
+  <Box
+    sx={{
+      flex: 1,
+      minHeight: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+    }}
+  >
   <Routes>
     <Route path="/login" element={<LoginPage />} />
     <Route path="/register" element={<RegisterPage />} />
@@ -22,4 +32,5 @@ export const AppRouter = () => (
     </Route>
     <Route path="*" element={<NotFoundPage />} />
   </Routes>
+  </Box>
 );

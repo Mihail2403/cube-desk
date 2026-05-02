@@ -19,5 +19,17 @@ export const createAppTheme = (mode: 'light' | 'dark') =>
       MuiButton: {
         defaultProps: { variant: 'contained', disableElevation: true },
       },
+      MuiCssBaseline: {
+        styleOverrides: {
+          html: { height: '100%' },
+          body: { height: '100%', margin: 0 },
+          '#root': {
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          },
+        },
+      },
     },
   });
