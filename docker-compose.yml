@@ -7,10 +7,10 @@ services:
   api:
     container_name: cube-desk-api
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     env_file:
-      - .env
+      - ./backend/.env
     depends_on:
       postgres:
         condition: service_healthy
@@ -23,7 +23,7 @@ services:
       sh -c "uv run alembic upgrade head &&
       uv run uvicorn app:app --reload --host 0.0.0.0 --port 8000"
     volumes:
-      - .:/app
+      - ./backend:/app
       - /app/.venv
     ports:
       - "8000:8000"
@@ -31,6 +31,27 @@ services:
       # Hostnames from the docker network (override localhost from .env)
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/cube_desk
       S3_ENDPOINT_URL: http://minio:9000
+    networks:
+      net:
+
+  web:
+    container_name: cube-desk-web
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    depends_on:
+      - api
+    restart: unless-stopped
+    command: >
+      sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
+    volumes:
+      - ./frontend:/app
+      - web_node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
     networks:
       net:
 
@@ -99,3 +120,4 @@ services:
 volumes:
   postgres_data:
   minio_data:
+  web_node_modules:
