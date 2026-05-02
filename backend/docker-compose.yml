@@ -1,4 +1,58 @@
+networks:
+  net:
+    name: cube-desk-net
+    driver: bridge
+
 services:
+  api:
+    container_name: cube-desk-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    command: >
+      sh -c "uv run alembic upgrade head &&
+      uv run uvicorn app:app --reload --host 0.0.0.0 --port 8000"
+    volumes:
+      - .:/app
+      - /app/.venv
+    ports:
+      - "8000:8000"
+    environment:
+      # Hostnames from the docker network (override localhost from .env)
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/cube_desk
+      S3_ENDPOINT_URL: http://minio:9000
+    networks:
+      net:
+
+  postgres:
+    container_name: cube-desk-postgres
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cube_desk
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cube_desk"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      net:
+
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
@@ -11,13 +65,21 @@ services:
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://127.0.0.1:9000/minio/health/live || exit 1",
+        ]
       interval: 5s
-      timeout: 3s
-      retries: 20
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      net:
 
   minio-init:
     image: minio/mc:latest
+    restart: "no"
     depends_on:
       minio:
         condition: service_healthy
@@ -31,6 +93,9 @@ services:
       mc mb -p local/$$S3_BUCKET || true &&
       mc anonymous set none local/$$S3_BUCKET || true
       "
+    networks:
+      net:
 
 volumes:
+  postgres_data:
   minio_data:
