@@ -79,6 +79,7 @@ class Ticket(Base):
         server_default=sa.func.now(),
         onupdate=sa.func.now(),
     )
+    resolution: Mapped[str | None] = mapped_column(sa.Text(), nullable=True)
 
     author: Mapped["User"] = relationship(
         back_populates="tickets",

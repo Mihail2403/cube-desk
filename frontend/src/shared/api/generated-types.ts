@@ -489,6 +489,8 @@ export interface components {
             /** Assignee Id */
             assignee_id?: number | null;
             assignee?: components["schemas"]["TicketAssigneeResponse"] | null;
+            /** Resolution */
+            resolution?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -517,6 +519,8 @@ export interface components {
             assignee_id?: number | null;
             /** Category Id */
             category_id?: number | null;
+            /** Resolution */
+            resolution?: string | null;
         };
         /** UserMeResponse */
         UserMeResponse: {

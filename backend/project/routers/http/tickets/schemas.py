@@ -20,6 +20,7 @@ class TicketUpdateRequest(BaseModel):
     priority: models.Ticket.TicketPriority | None = None
     assignee_id: int | None = None
     category_id: int | None = None
+    resolution: str | None = Field(default=None, max_length=10_000)
 
 
 class TicketAssigneeResponse(BaseModel):
@@ -44,6 +45,7 @@ class TicketResponse(BaseModel):
     priority: models.Ticket.TicketPriority
     assignee_id: int | None = None
     assignee: TicketAssigneeResponse | None = None
+    resolution: str | None = None
     created_at: datetime
     updated_at: datetime
 

@@ -22,7 +22,7 @@ const baseSchema = z.object({
   category_id: z.coerce.number().int().positive(),
 });
 
-type FormValues = z.infer<typeof baseSchema> & { assignee_id?: number | null };
+type FormValues = z.infer<typeof baseSchema> & { assignee_id?: number | null; resolution?: string };
 
 interface TicketEditFormProps {
   ticket: TicketResponse;
@@ -67,15 +67,28 @@ export const TicketEditForm = ({
     return allUsers.filter((u) => staffRoles.includes(u.role));
   }, [allUsers]);
 
-  const schema = useMemo(
-    () =>
-      canAssignAssignee
-        ? baseSchema.extend({
-            assignee_id: z.number().nullable(),
-          })
-        : baseSchema,
-    [canAssignAssignee],
-  );
+  const schema = useMemo(() => {
+    if (!canAssignAssignee) {
+      return baseSchema;
+    }
+    return baseSchema
+      .extend({
+        assignee_id: z.number().nullable(),
+        resolution: z.string().max(10_000).optional(),
+      })
+      .superRefine((data, ctx) => {
+        if (data.status === 'CLOSED') {
+          const r = data.resolution?.trim() ?? '';
+          if (!r) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'Укажите итоговое решение при закрытии тикета',
+              path: ['resolution'],
+            });
+          }
+        }
+      });
+  }, [canAssignAssignee]);
 
   const resolver = useMemo(() => zodResolver(schema), [schema]);
 
@@ -94,7 +107,7 @@ export const TicketEditForm = ({
       status: ticket.status,
       priority: ticket.priority,
       category_id: ticket.category_id,
-      ...(canAssignAssignee ? { assignee_id: ticket.assignee_id ?? null } : {}),
+      ...(canAssignAssignee ? { assignee_id: ticket.assignee_id ?? null, resolution: ticket.resolution ?? '' } : {}),
     },
   });
 
@@ -105,7 +118,7 @@ export const TicketEditForm = ({
       status: ticket.status,
       priority: ticket.priority,
       category_id: ticket.category_id,
-      ...(canAssignAssignee ? { assignee_id: ticket.assignee_id ?? null } : {}),
+      ...(canAssignAssignee ? { assignee_id: ticket.assignee_id ?? null, resolution: ticket.resolution ?? '' } : {}),
     });
   }, [
     reset,
@@ -116,6 +129,7 @@ export const TicketEditForm = ({
     ticket.priority,
     ticket.category_id,
     ticket.assignee_id,
+    ticket.resolution,
     ticket.updated_at,
     canAssignAssignee,
   ]);
@@ -129,6 +143,14 @@ export const TicketEditForm = ({
         category_id: values.category_id,
         ...(canChangeStatus ? { status: values.status } : {}),
         ...(canAssignAssignee && 'assignee_id' in values ? { assignee_id: values.assignee_id } : {}),
+        ...(canAssignAssignee && 'resolution' in values
+          ? {
+              resolution:
+                !values.resolution || !String(values.resolution).trim()
+                  ? null
+                  : String(values.resolution).trim(),
+            }
+          : {}),
       });
       enqueueSnackbar('Сохранено', { variant: 'success' });
       onSaved?.();
@@ -253,6 +275,18 @@ export const TicketEditForm = ({
                 ))}
               </TextField>
             )}
+          />
+        )}
+        {canAssignAssignee && (
+          <TextField
+            label="Итоговое решение"
+            placeholder="Кратко опишите, что сделали для закрытия тикета (для подсказок похожих кейсов)"
+            fullWidth
+            multiline
+            minRows={3}
+            error={Boolean(errors.resolution)}
+            helperText={errors.resolution?.message}
+            {...register('resolution')}
           />
         )}
         <Button type="submit" variant="outlined" disabled={updateTicket.isPending}>

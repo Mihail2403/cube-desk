@@ -162,6 +162,22 @@ async def update_ticket(
 
             ticket.assignee_id = assignee_id
 
+    if "resolution" in patch_data:
+        if user.role == models.User.UserRole.USER:
+            raise ForbiddenError("Only staff can set resolution")
+        raw = patch_data["resolution"]
+        if raw is None or (isinstance(raw, str) and not raw.strip()):
+            ticket.resolution = None
+        else:
+            ticket.resolution = raw.strip() if isinstance(raw, str) else str(raw)
+
+    if patch_data.get("status") == models.Ticket.TicketStatus.CLOSED and user.role in (
+        models.User.UserRole.SUPPORT,
+        models.User.UserRole.ADMIN,
+    ):
+        if not (ticket.resolution and ticket.resolution.strip()):
+            raise BadRequestError("Укажите итоговое решение при закрытии тикета")
+
     await session.commit()
     reloaded = await tickets_repo.get_ticket(session, ticket_id=ticket.id)
     if reloaded is None:

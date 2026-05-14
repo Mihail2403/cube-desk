@@ -158,6 +158,16 @@ export const TicketPage = () => {
               <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 1 }}>
                 {ticket.description || '—'}
               </Typography>
+              {ticket.resolution && (
+                <Box sx={{ mt: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">
+                    Итоговое решение
+                  </Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                    {ticket.resolution}
+                  </Typography>
+                </Box>
+              )}
             </Stack>
             {canEdit && (
               <Button
