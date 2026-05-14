@@ -111,11 +111,50 @@ export const TicketPage = () => {
                 <StatusChip status={ticket.status} />
                 <PriorityChip priority={ticket.priority} />
               </Stack>
-              <Typography variant="body2" color="text.secondary">
-                Создан: {formatDateTime(ticket.created_at)} · Обновлён: {formatDateTime(ticket.updated_at)} · Категория:{' '}
-                {ticket.category.name} · Автор: {ticket.author.login} · Ответственный:{' '}
-                {ticket.assignee?.login ?? '—'}
-              </Typography>
+              <Box
+                component="dl"
+                sx={{
+                  m: 0,
+                  display: 'grid',
+                  gridTemplateColumns: 'max-content minmax(0, 1fr)',
+                  columnGap: 1.25,
+                  rowGap: 0.5,
+                  alignItems: 'baseline',
+                  color: 'text.secondary',
+                  typography: 'body2',
+                }}
+              >
+                <Typography component="dt" variant="body2" color="text.secondary" sx={{ m: 0, fontWeight: 500 }}>
+                  Создан:
+                </Typography>
+                <Typography component="dd" variant="body2" color="text.secondary" sx={{ m: 0 }}>
+                  {formatDateTime(ticket.created_at)}
+                </Typography>
+                <Typography component="dt" variant="body2" color="text.secondary" sx={{ m: 0, fontWeight: 500 }}>
+                  Обновлён:
+                </Typography>
+                <Typography component="dd" variant="body2" color="text.secondary" sx={{ m: 0 }}>
+                  {formatDateTime(ticket.updated_at)}
+                </Typography>
+                <Typography component="dt" variant="body2" color="text.secondary" sx={{ m: 0, fontWeight: 500 }}>
+                  Категория:
+                </Typography>
+                <Typography component="dd" variant="body2" color="text.secondary" sx={{ m: 0 }}>
+                  {ticket.category.name}
+                </Typography>
+                <Typography component="dt" variant="body2" color="text.secondary" sx={{ m: 0, fontWeight: 500 }}>
+                  Автор:
+                </Typography>
+                <Typography component="dd" variant="body2" color="text.secondary" sx={{ m: 0 }}>
+                  {ticket.author.login}
+                </Typography>
+                <Typography component="dt" variant="body2" color="text.secondary" sx={{ m: 0, fontWeight: 500 }}>
+                  Ответственный:
+                </Typography>
+                <Typography component="dd" variant="body2" color="text.secondary" sx={{ m: 0 }}>
+                  {ticket.assignee?.login ?? '—'}
+                </Typography>
+              </Box>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 1 }}>
                 {ticket.description || '—'}
               </Typography>
@@ -166,6 +205,13 @@ export const TicketPage = () => {
             gridArea: 'compose',
             p: 3,
             alignSelf: 'stretch',
+            minHeight: 0,
+            minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            /* на xs строка compose — auto: без потолка грид + overflow:hidden срезают низ; ограничиваем блок */
+            maxHeight: { xs: 'min(52vh, 520px)', md: 'none' },
           }}
         >
           <MessageComposer ticketId={ticket.id} />

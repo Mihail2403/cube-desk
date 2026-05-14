@@ -102,19 +102,39 @@ export const MessageComposer = ({ ticketId }: MessageComposerProps) => {
   });
 
   return (
-    <Box component="form" onSubmit={onSubmit}>
-      <Stack spacing={2}>
-        <Typography variant="subtitle2" color="text.secondary">
+    <Box
+      component="form"
+      onSubmit={onSubmit}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minHeight: 0,
+        height: '100%',
+      }}
+    >
+      <Stack
+        spacing={2}
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Typography variant="subtitle2" color="text.secondary" sx={{ flexShrink: 0 }}>
           Новое сообщение
         </Typography>
         <Box
           sx={{
+            flex: 1,
             minHeight: 0,
-            maxHeight: { xs: 'min(52vh, 420px)', md: 'min(48vh, 400px)' },
+            minWidth: 0,
             overflowY: 'auto',
             overscrollBehavior: 'contain',
+            WebkitOverflowScrolling: 'touch',
             pr: 0.5,
-            mr: -0.5,
           }}
         >
           <Stack
@@ -122,7 +142,7 @@ export const MessageComposer = ({ ticketId }: MessageComposerProps) => {
             sx={{
               /* место под плавающую метку Outlined TextField, чтобы overflow её не резал */
               pt: 2,
-              pb: 0.5,
+              pb: 1.5,
             }}
           >
             {errors.root?.message && <Alert severity="error">{errors.root.message}</Alert>}
@@ -246,6 +266,7 @@ export const MessageComposer = ({ ticketId }: MessageComposerProps) => {
           variant="contained"
           startIcon={<SendIcon />}
           disabled={postMessage.isPending}
+          sx={{ flexShrink: 0, alignSelf: 'flex-start' }}
         >
           {postMessage.isPending ? 'Отправка…' : 'Отправить'}
         </Button>
