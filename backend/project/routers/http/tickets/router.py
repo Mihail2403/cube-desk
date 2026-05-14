@@ -70,15 +70,18 @@ async def get_tickets(
     status: Annotated[models.Ticket.TicketStatus | None, Query()] = None,
     priority: Annotated[models.Ticket.TicketPriority | None, Query()] = None,
     updated_at__gt: Annotated[datetime | None, Query()] = None,
+    search: Annotated[str | None, Query(max_length=256)] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> list[local_schemas.TicketResponse]:
+    search_norm = search.strip() if search else None
     tickets = await tickets_service.get_tickets(
         session,
         user=user,
         status=status,
         priority=priority,
         updated_at__gt=updated_at__gt,
+        search=search_norm or None,
         limit=limit,
         offset=offset,
     )

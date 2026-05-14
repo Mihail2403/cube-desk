@@ -1,6 +1,6 @@
 import { Add as AddIcon } from '@mui/icons-material';
 import { Box, Button, Stack, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTicketsList } from '@/entities/ticket/model/use-tickets';
 import { TicketCreateDialog } from '@/features/ticket-create/ui/ticket-create-dialog';
@@ -15,6 +15,8 @@ export const TicketsPage = () => {
   const [status, setStatus] = useState<TicketStatus | ''>('');
   const [priority, setPriority] = useState<TicketPriority | ''>('');
   const [ticketIdFilter, setTicketIdFilter] = useState('');
+  const [searchText, setSearchText] = useState('');
+  const deferredSearch = useDeferredValue(searchText.trim());
   const [createOpen, setCreateOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
@@ -23,11 +25,12 @@ export const TicketsPage = () => {
 
   useEffect(() => {
     setPaginationModel((p) => ({ ...p, page: 0 }));
-  }, [status, priority]);
+  }, [status, priority, searchText]);
 
   const { data: rows = [], isLoading } = useTicketsList({
     status: status || undefined,
     priority: priority || undefined,
+    search: deferredSearch || undefined,
     limit: paginationModel.pageSize,
     offset: paginationModel.page * paginationModel.pageSize,
   });
@@ -70,6 +73,8 @@ export const TicketsPage = () => {
           onStatusChange={setStatus}
           priority={priority}
           onPriorityChange={setPriority}
+          searchText={searchText}
+          onSearchTextChange={setSearchText}
           ticketIdFilter={ticketIdFilter}
           onTicketIdFilterChange={setTicketIdFilter}
         />

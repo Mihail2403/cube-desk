@@ -1,10 +1,23 @@
 from datetime import datetime
 
-from sqlalchemy import ColumnElement, func, select
+from sqlalchemy import ColumnElement, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from project import models
+
+
+def _ticket_title_or_description_ilike(search: str) -> ColumnElement[bool]:
+    escaped = (
+        search.replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_")
+    )
+    pattern = f"%{escaped}%"
+    return or_(
+        models.Ticket.title.ilike(pattern, escape="\\"),
+        models.Ticket.description.ilike(pattern, escape="\\"),
+    )
 
 
 async def create_ticket(
@@ -43,6 +56,7 @@ async def get_tickets(
     status: models.Ticket.TicketStatus | None = None,
     priority: models.Ticket.TicketPriority | None = None,
     updated_at__gt: datetime | None = None,
+    search: str | None = None,
 ) -> list[models.Ticket]:
     filters: list[ColumnElement[bool]] = []
     if author_id is not None:
@@ -53,6 +67,8 @@ async def get_tickets(
         filters.append(models.Ticket.priority == priority)
     if updated_at__gt is not None:
         filters.append(models.Ticket.updated_at > updated_at__gt)
+    if search:
+        filters.append(_ticket_title_or_description_ilike(search))
 
     stmt = (
         select(models.Ticket)

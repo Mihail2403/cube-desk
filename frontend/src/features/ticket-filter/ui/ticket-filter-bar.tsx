@@ -7,6 +7,8 @@ interface TicketFilterBarProps {
   onStatusChange: (v: TicketStatus | '') => void;
   priority: TicketPriority | '';
   onPriorityChange: (v: TicketPriority | '') => void;
+  searchText: string;
+  onSearchTextChange: (v: string) => void;
   ticketIdFilter: string;
   onTicketIdFilterChange: (v: string) => void;
 }
@@ -32,6 +34,8 @@ export const TicketFilterBar = ({
   onStatusChange,
   priority,
   onPriorityChange,
+  searchText,
+  onSearchTextChange,
   ticketIdFilter,
   onTicketIdFilterChange,
 }: TicketFilterBarProps) => {
@@ -75,6 +79,14 @@ export const TicketFilterBar = ({
           ))}
         </Select>
       </FormControl>
+      <TextField
+        size="small"
+        label="Поиск"
+        placeholder="Заголовок или описание"
+        value={searchText}
+        onChange={(e) => onSearchTextChange(e.target.value)}
+        sx={{ minWidth: { xs: '100%', sm: 220 }, flex: { sm: 1 } }}
+      />
       <TextField
         size="small"
         label="ID тикета"

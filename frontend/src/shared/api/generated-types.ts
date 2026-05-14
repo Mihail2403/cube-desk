@@ -764,6 +764,7 @@ export interface operations {
                 status?: components["schemas"]["TicketStatus"] | null;
                 priority?: components["schemas"]["TicketPriority"] | null;
                 updated_at__gt?: string | null;
+                search?: string | null;
                 limit?: number;
                 offset?: number;
             };

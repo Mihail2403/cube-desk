@@ -60,6 +60,7 @@ async def get_tickets(
     status: models.Ticket.TicketStatus | None = None,
     priority: models.Ticket.TicketPriority | None = None,
     updated_at__gt: datetime | None = None,
+    search: str | None = None,
 ) -> list[models.Ticket]:
     if user.role == models.User.UserRole.USER:
         return await tickets_repo.get_tickets(
@@ -68,6 +69,7 @@ async def get_tickets(
             status=status,
             priority=priority,
             updated_at__gt=updated_at__gt,
+            search=search,
             limit=limit,
             offset=offset,
         )
@@ -77,6 +79,7 @@ async def get_tickets(
             status=status,
             priority=priority,
             updated_at__gt=updated_at__gt,
+            search=search,
             limit=limit,
             offset=offset,
         )
