@@ -53,11 +53,7 @@ async def get_users(
 
 
 async def count_active_users(session: AsyncSession) -> int:
-    stmt = (
-        select(func.count())
-        .select_from(models.User)
-        .where(models.User.is_active.is_(True))
-    )
+    stmt = select(func.count()).select_from(models.User).where(models.User.is_active.is_(True))
     return int((await session.execute(stmt)).scalar_one())
 
 
@@ -68,7 +64,7 @@ async def count_active_users_by_role(session: AsyncSession) -> dict[models.User.
         .group_by(models.User.role)
     )
     rows = (await session.execute(stmt)).all()
-    counts = {r: 0 for r in models.User.UserRole}
+    counts = dict.fromkeys(models.User.UserRole, 0)
     for role, n in rows:
         counts[role] = int(n)
     return counts

@@ -8,11 +8,7 @@ from project import models
 
 
 def _ticket_title_or_description_ilike(search: str) -> ColumnElement[bool]:
-    escaped = (
-        search.replace("\\", "\\\\")
-        .replace("%", "\\%")
-        .replace("_", "\\_")
-    )
+    escaped = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     pattern = f"%{escaped}%"
     return or_(
         models.Ticket.title.ilike(pattern, escape="\\"),

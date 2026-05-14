@@ -17,4 +17,3 @@ def hash_password(*, password: str, user_salt: str) -> str:
 def verify_password(*, password: str, user_salt: str, password_hash: str) -> bool:
     value = (password + user_salt + config.SALT).encode("utf-8")
     return bcrypt.checkpw(value, password_hash.encode("utf-8"))
-

@@ -75,4 +75,3 @@ async def create_presigned_get_url(*, key: str) -> str:
             ExpiresIn=expires_in,
         )
         return cast(str, url)
-
