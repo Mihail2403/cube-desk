@@ -17,9 +17,14 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, hint }: StatCardProps) => (
-  <Card variant="outlined" sx={{ height: '100%' }}>
-    <CardContent>
-      <Typography variant="overline" color="text.secondary" display="block">
+  <Card variant="outlined" sx={{ height: '100%', minWidth: 0 }}>
+    <CardContent sx={{ '&:last-child': { pb: 2 } }}>
+      <Typography
+        variant="overline"
+        color="text.secondary"
+        display="block"
+        sx={{ wordBreak: 'break-word', lineHeight: 1.3 }}
+      >
         {title}
       </Typography>
       <Typography variant="h4" fontWeight={700} component="p" sx={{ my: 0.5 }}>
@@ -73,8 +78,8 @@ export const AdminDashboardPage = () => {
               gap: 2,
               gridTemplateColumns: {
                 xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
+                sm: 'repeat(2, minmax(0, 1fr))',
+                md: 'repeat(3, minmax(0, 1fr))',
               },
             }}
           >
@@ -104,8 +109,8 @@ export const AdminDashboardPage = () => {
               gap: 2,
               gridTemplateColumns: {
                 xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(4, 1fr)',
+                sm: 'repeat(2, minmax(0, 1fr))',
+                md: 'repeat(4, minmax(0, 1fr))',
               },
             }}
           >

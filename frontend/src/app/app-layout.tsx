@@ -23,7 +23,8 @@ export const AppLayout = () => (
         flexDirection: 'column',
         minHeight: 0,
         py: 3,
-        overflow: 'hidden',
+        overflowX: 'hidden',
+        overflowY: 'auto',
       }}
     >
       <Outlet />
