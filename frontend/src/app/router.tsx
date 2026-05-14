@@ -1,11 +1,15 @@
 import { Box } from '@mui/material';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { AdminRoute } from '@/app/admin-route';
 import { AppLayout } from '@/app/app-layout';
 import { ProtectedRoute } from '@/app/protected-route';
 import { ForbiddenPage } from '@/pages/forbidden-page';
 import { LoginPage } from '@/pages/login-page';
 import { NotFoundPage } from '@/pages/not-found-page';
 import { RegisterPage } from '@/pages/register-page';
+import { AdminShell } from '@/pages/admin/admin-shell';
+import { AdminDashboardPage } from '@/pages/admin/admin-dashboard-page';
+import { AdminUsersPage } from '@/pages/admin/admin-users-page';
 import { TicketPage } from '@/pages/ticket-page';
 import { TicketsPage } from '@/pages/tickets-page';
 
@@ -28,6 +32,12 @@ export const AppRouter = () => (
         <Route path="/" element={<Navigate to="/tickets" replace />} />
         <Route path="/tickets" element={<TicketsPage />} />
         <Route path="/tickets/:id" element={<TicketPage />} />
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminShell />}>
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+          </Route>
+        </Route>
       </Route>
     </Route>
     <Route path="*" element={<NotFoundPage />} />

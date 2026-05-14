@@ -48,6 +48,11 @@ export const AppHeader = () => {
         <Box component={RouterLink} to="/tickets" sx={{ mr: 2, color: 'text.secondary', textDecoration: 'none' }}>
           Тикеты
         </Box>
+        {user?.role === 'ADMIN' && (
+          <Box component={RouterLink} to="/admin" sx={{ mr: 2, color: 'text.secondary', textDecoration: 'none' }}>
+            Админ
+          </Box>
+        )}
         <Box sx={{ flexGrow: 1 }} />
         {user?.role && (
           <Chip size="small" label={roleLabel} color="primary" variant="outlined" sx={{ mr: 1 }} />

@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from sqlalchemy import ColumnElement, select
+from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from project import models
@@ -50,3 +50,25 @@ async def get_users(
     if conditions:
         stmt = stmt.where(*conditions)
     return list((await session.execute(stmt)).scalars().all())
+
+
+async def count_active_users(session: AsyncSession) -> int:
+    stmt = (
+        select(func.count())
+        .select_from(models.User)
+        .where(models.User.is_active.is_(True))
+    )
+    return int((await session.execute(stmt)).scalar_one())
+
+
+async def count_active_users_by_role(session: AsyncSession) -> dict[models.User.UserRole, int]:
+    stmt = (
+        select(models.User.role, func.count())
+        .where(models.User.is_active.is_(True))
+        .group_by(models.User.role)
+    )
+    rows = (await session.execute(stmt)).all()
+    counts = {r: 0 for r in models.User.UserRole}
+    for role, n in rows:
+        counts[role] = int(n)
+    return counts

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ColumnElement, select
+from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -66,6 +66,29 @@ async def get_tickets(
         .offset(offset)
     )
     return list((await session.execute(stmt)).scalars().all())
+
+
+async def count_tickets(
+    session: AsyncSession,
+    *,
+    status: models.Ticket.TicketStatus | None = None,
+    statuses: tuple[models.Ticket.TicketStatus, ...] | None = None,
+    created_at__gte: datetime | None = None,
+    updated_at__gte: datetime | None = None,
+) -> int:
+    stmt = select(func.count()).select_from(models.Ticket)
+    conds: list[ColumnElement[bool]] = []
+    if status is not None:
+        conds.append(models.Ticket.status == status)
+    if statuses is not None and len(statuses) > 0:
+        conds.append(models.Ticket.status.in_(statuses))
+    if created_at__gte is not None:
+        conds.append(models.Ticket.created_at >= created_at__gte)
+    if updated_at__gte is not None:
+        conds.append(models.Ticket.updated_at >= updated_at__gte)
+    if conds:
+        stmt = stmt.where(*conds)
+    return int((await session.execute(stmt)).scalar_one())
 
 
 async def create_message(
