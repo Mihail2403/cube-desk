@@ -1,5 +1,6 @@
 import { httpClient } from '@/shared/api/http-client';
 import type {
+  SimilarSolutionResponse,
   TicketCreateRequest,
   TicketPriority,
   TicketResponse,
@@ -38,4 +39,15 @@ export const updateTicket = async (
 ): Promise<TicketResponse> => {
   const { data } = await httpClient.patch<TicketResponse>(`/api/tickets/${ticketId}`, body);
   return data;
+};
+
+export const fetchSimilarSolutions = async (
+  ticketId: number,
+  params?: { limit?: number },
+): Promise<SimilarSolutionResponse[]> => {
+  const { data } = await httpClient.get<SimilarSolutionResponse[]>(
+    `/api/tickets/${ticketId}/similar-solutions`,
+    { params },
+  );
+  return data ?? [];
 };

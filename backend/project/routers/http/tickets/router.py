@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from project import models
 from project.core.database import get_async_session
-from project.dependencies.auth import get_current_active_user
+from project.dependencies.auth import get_current_active_user, require_roles
 from project.services import tickets as tickets_service
 from project.services.s3 import service as s3_service
 
@@ -89,6 +89,35 @@ async def get_tickets(
         offset=offset,
     )
     return [local_schemas.TicketResponse.model_validate(t, from_attributes=True) for t in tickets]
+
+
+@router.get(
+    "/{ticket_id}/similar-solutions",
+    response_model=list[local_schemas.SimilarSolutionResponse],
+)
+async def get_similar_solutions(
+    ticket_id: int,
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+    user: Annotated[
+        models.User,
+        Depends(require_roles(models.User.UserRole.SUPPORT, models.User.UserRole.ADMIN)),
+    ],
+    limit: Annotated[int, Query(ge=1, le=10)] = 5,
+) -> list[local_schemas.SimilarSolutionResponse]:
+    ticket = await tickets_service.get_ticket(session, user=user, ticket_id=ticket_id)
+
+    hits = await tickets_service.search_similar_solutions_for_ticket(ticket=ticket, limit=limit)
+
+    return [
+        local_schemas.SimilarSolutionResponse(
+            ticket_id=h.ticket_id,
+            title=h.title,
+            category=h.category,
+            resolution=h.resolution,
+            score=h.score,
+        )
+        for h in hits
+    ]
 
 
 @router.get("/{ticket_id}", response_model=local_schemas.TicketResponse)

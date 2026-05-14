@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createTicket,
+  fetchSimilarSolutions,
   fetchTicket,
   fetchTickets,
   type GetTicketsParams,
@@ -11,6 +12,9 @@ import type { TicketCreateRequest, TicketUpdateRequest } from '@/shared/types/ap
 export const ticketsListQueryKey = (params: GetTicketsParams) => ['tickets', params] as const;
 
 export const ticketDetailQueryKey = (id: number) => ['tickets', id] as const;
+
+export const similarSolutionsQueryKey = (id: number, limit: number) =>
+  ['tickets', id, 'similar-solutions', limit] as const;
 
 export const useTicketsList = (params: GetTicketsParams) =>
   useQuery({
@@ -42,6 +46,20 @@ export const useUpdateTicket = (ticketId: number) => {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['tickets'] });
       void qc.invalidateQueries({ queryKey: ticketDetailQueryKey(ticketId) });
+      void qc.invalidateQueries({ queryKey: ['tickets', ticketId, 'similar-solutions'] });
     },
   });
 };
+
+export interface UseSimilarSolutionsParams {
+  ticketId: number;
+  enabled: boolean;
+  limit?: number;
+}
+
+export const useSimilarSolutions = ({ ticketId, enabled, limit = 5 }: UseSimilarSolutionsParams) =>
+  useQuery({
+    queryKey: similarSolutionsQueryKey(ticketId, limit),
+    queryFn: () => fetchSimilarSolutions(ticketId, { limit }),
+    enabled: enabled && Number.isFinite(ticketId) && ticketId > 0,
+  });

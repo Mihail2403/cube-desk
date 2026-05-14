@@ -3,16 +3,24 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import UploadFile
+from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from project import models
+from project import models, schemas
 from project.core.config import config
-from project.core.exceptions import BadRequestError, FileSizeError, ForbiddenError, NotFoundError
+from project.core.exceptions import (
+    BadRequestError,
+    FileSizeError,
+    ForbiddenError,
+    NotFoundError,
+    ServiceUnavailableError,
+)
 from project.repositories import ticket_categories as ticket_categories_repo
 from project.repositories import tickets as tickets_repo
 from project.repositories import users as users_repo
+from project.services.ai import ticket_similarity as ticket_similarity_service
 from project.services.s3 import service as s3_service
 
 
@@ -182,7 +190,27 @@ async def update_ticket(
     reloaded = await tickets_repo.get_ticket(session, ticket_id=ticket.id)
     if reloaded is None:
         raise NotFoundError("Ticket not found")
+
+    await ticket_similarity_service.sync_ticket_solution_index(reloaded)
+
     return reloaded
+
+
+async def search_similar_solutions_for_ticket(
+    *,
+    ticket: models.Ticket,
+    limit: int,
+) -> list[schemas.SimilarSolutionHit]:
+    try:
+        return await ticket_similarity_service.search_similar_solutions(
+            ticket=ticket,
+            limit=limit,
+        )
+    except Exception as exc:
+        logger.exception("Similar solutions search failed")
+        raise ServiceUnavailableError(
+            "Сервис похожих решений временно недоступен",
+        ) from exc
 
 
 async def create_message(

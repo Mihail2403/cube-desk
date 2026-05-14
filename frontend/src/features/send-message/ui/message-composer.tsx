@@ -108,29 +108,25 @@ export const MessageComposer = ({ ticketId }: MessageComposerProps) => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        flex: 1,
-        minHeight: 0,
-        height: '100%',
+        width: '100%',
+        minWidth: 0,
       }}
     >
       <Stack
         spacing={2}
         sx={{
-          flex: 1,
-          minHeight: 0,
-          overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
+          minWidth: 0,
         }}
       >
-        <Typography variant="subtitle2" color="text.secondary" sx={{ flexShrink: 0 }}>
-          Новое сообщение
+        <Typography variant="overline" color="text.secondary" sx={{ flexShrink: 0, letterSpacing: 0.08, lineHeight: 1.2 }}>
+          Ответ в тикет
         </Typography>
         <Box
           sx={{
-            flex: 1,
-            minHeight: 0,
             minWidth: 0,
+            maxHeight: { xs: 'min(44vh, 360px)', sm: 'min(38vh, 320px)' },
             overflowY: 'auto',
             overscrollBehavior: 'contain',
             WebkitOverflowScrolling: 'touch',

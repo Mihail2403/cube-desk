@@ -50,6 +50,14 @@ class TicketResponse(BaseModel):
     updated_at: datetime
 
 
+class SimilarSolutionResponse(BaseModel):
+    ticket_id: int
+    title: str
+    category: str
+    resolution: str
+    score: float
+
+
 class TicketMessageCreateRequest(BaseModel):
     body: str = Field(min_length=1, max_length=10_000)
 

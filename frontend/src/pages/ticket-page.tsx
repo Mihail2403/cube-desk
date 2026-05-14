@@ -11,6 +11,7 @@ import { formatDateTime } from '@/shared/lib/format-date';
 import { PriorityChip } from '@/shared/ui/priority-chip';
 import { StatusChip } from '@/shared/ui/status-chip';
 import { MessageThread } from '@/widgets/message-thread/ui/message-thread';
+import { SimilarSolutionsCard } from '@/widgets/similar-solutions/ui/similar-solutions-card';
 
 export const TicketPage = () => {
   const { id } = useParams();
@@ -76,32 +77,39 @@ export const TicketPage = () => {
           alignContent: 'stretch',
           gridTemplateColumns: { xs: '1fr', md: 'minmax(260px, 400px) minmax(0, 1fr)' },
           gridTemplateRows: {
-            xs: 'auto minmax(220px, 1fr) auto',
-            md: 'auto minmax(0, 1fr)',
+            xs: 'auto minmax(220px, 1fr)',
+            md: 'minmax(0, 1fr)',
           },
           gridTemplateAreas: {
             xs: `
               "ticket"
               "chat"
-              "compose"
             `,
             md: `
               "side chat"
-              "compose chat"
             `,
           },
         }}
       >
-        <Paper
+        <Stack
           sx={{
             gridArea: { xs: 'ticket', md: 'side' },
-            p: 3,
+            gap: 2,
             alignSelf: 'start',
             width: '100%',
-            overflow: 'auto',
-            maxHeight: { md: 'min(55vh, 100%)' },
+            minWidth: 0,
+            maxHeight: { md: 'min(92vh, 100%)' },
+            overflow: { md: 'auto' },
           }}
         >
+          <Paper
+            sx={{
+              p: 3,
+              width: '100%',
+              overflow: 'auto',
+              flexShrink: 0,
+            }}
+          >
           <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
             <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
               <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap" useFlexGap>
@@ -182,6 +190,8 @@ export const TicketPage = () => {
             )}
           </Stack>
         </Paper>
+        {isStaff && <SimilarSolutionsCard ticketId={ticket.id} enabled={isStaff} />}
+        </Stack>
 
         <Paper
           sx={{
@@ -208,23 +218,18 @@ export const TicketPage = () => {
           >
             <MessageThread ticketId={ticket.id} currentUserId={me.id} />
           </Box>
-        </Paper>
-
-        <Paper
-          sx={{
-            gridArea: 'compose',
-            p: 3,
-            alignSelf: 'stretch',
-            minHeight: 0,
-            minWidth: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            /* на xs строка compose — auto: без потолка грид + overflow:hidden срезают низ; ограничиваем блок */
-            maxHeight: { xs: 'min(52vh, 520px)', md: 'none' },
-          }}
-        >
-          <MessageComposer ticketId={ticket.id} />
+          <Box
+            sx={{
+              flexShrink: 0,
+              mt: 2,
+              pt: 2,
+              borderTop: 1,
+              borderColor: 'divider',
+              minWidth: 0,
+            }}
+          >
+            <MessageComposer ticketId={ticket.id} />
+          </Box>
         </Paper>
       </Box>
 
