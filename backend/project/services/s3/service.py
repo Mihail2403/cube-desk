@@ -5,7 +5,7 @@ import aioboto3  # pyright: ignore[reportMissingTypeStubs]
 
 from project.core.config import config
 
-from . import schemes as local_schemes
+from . import schemas as local_schemas
 
 
 def _get_session() -> Any:
@@ -21,7 +21,7 @@ async def put_object(
     key: str,
     fileobj: BinaryIO,
     content_type: str | None,
-) -> local_schemes.StoredObject:
+) -> local_schemas.StoredObject:
     session = _get_session()
 
     extra_args: dict[str, str] = {}
@@ -41,7 +41,7 @@ async def put_object(
             ExtraArgs=extra_args or None,
         )
 
-    return local_schemes.StoredObject(bucket=config.S3_BUCKET, key=key)
+    return local_schemas.StoredObject(bucket=config.S3_BUCKET, key=key)
 
 
 async def delete_object(*, key: str) -> None:
