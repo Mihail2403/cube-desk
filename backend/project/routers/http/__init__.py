@@ -3,12 +3,14 @@ from fastapi import APIRouter
 from .admin.router import router as admin_router
 from .auth.router import router as auth_router
 from .health.router import router as health_router
+from .ticket_categories.router import router as ticket_categories_router
 from .tickets.router import router as tickets_router
 from .users.router import router as users_router
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(auth_router)
 api_router.include_router(health_router)
+api_router.include_router(ticket_categories_router)
 api_router.include_router(tickets_router)
 api_router.include_router(users_router)
 api_router.include_router(admin_router)

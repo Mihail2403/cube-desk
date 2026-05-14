@@ -9,6 +9,7 @@ import type {
 export interface GetTicketsParams {
   status?: string | null;
   priority?: TicketPriority | null;
+  category_id?: number | null;
   updated_at__gt?: string | null;
   /** Подстрока в заголовке или описании (регистронезависимо) */
   search?: string | null;

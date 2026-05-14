@@ -10,6 +10,7 @@ from sqlalchemy.orm import selectinload
 from project import models
 from project.core.config import config
 from project.core.exceptions import BadRequestError, FileSizeError, ForbiddenError, NotFoundError
+from project.repositories import ticket_categories as ticket_categories_repo
 from project.repositories import tickets as tickets_repo
 from project.repositories import users as users_repo
 from project.services.s3 import service as s3_service
@@ -33,7 +34,22 @@ async def create_ticket(
     title: str,
     description: str | None,
     priority: models.Ticket.TicketPriority | None = None,
+    category_id: int | None = None,
 ) -> models.Ticket:
+    resolved_category_id = category_id
+    if resolved_category_id is None:
+        default_id = await ticket_categories_repo.get_default_category_id(session)
+        if default_id is None:
+            raise BadRequestError("Категории тикетов не настроены")
+        resolved_category_id = default_id
+    else:
+        category = await ticket_categories_repo.get_category(
+            session,
+            category_id=resolved_category_id,
+        )
+        if category is None:
+            raise BadRequestError("Некорректная категория")
+
     ticket = await tickets_repo.create_ticket(
         session,
         instance=models.Ticket(
@@ -42,6 +58,7 @@ async def create_ticket(
             description=description or "",
             status=models.Ticket.TicketStatus.OPEN,
             priority=priority or models.Ticket.TicketPriority.MEDIUM,
+            category_id=resolved_category_id,
         ),
     )
     await session.commit()
@@ -59,6 +76,7 @@ async def get_tickets(
     offset: int,
     status: models.Ticket.TicketStatus | None = None,
     priority: models.Ticket.TicketPriority | None = None,
+    category_id: int | None = None,
     updated_at__gt: datetime | None = None,
     search: str | None = None,
 ) -> list[models.Ticket]:
@@ -68,6 +86,7 @@ async def get_tickets(
             author_id=user.id,
             status=status,
             priority=priority,
+            category_id=category_id,
             updated_at__gt=updated_at__gt,
             search=search,
             limit=limit,
@@ -78,6 +97,7 @@ async def get_tickets(
             session,
             status=status,
             priority=priority,
+            category_id=category_id,
             updated_at__gt=updated_at__gt,
             search=search,
             limit=limit,
@@ -116,6 +136,12 @@ async def update_ticket(
         ticket.status = patch_data["status"]
     if "priority" in patch_data:
         ticket.priority = patch_data["priority"]
+    if "category_id" in patch_data:
+        cid = patch_data["category_id"]
+        category = await ticket_categories_repo.get_category(session, category_id=cid)
+        if category is None:
+            raise BadRequestError("Некорректная категория")
+        ticket.category_id = cid
 
     if "assignee_id" in patch_data:
         if user.role == models.User.UserRole.USER:

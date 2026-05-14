@@ -13,6 +13,23 @@ if TYPE_CHECKING:
 
 
 @final
+class TicketCategory(Base):
+    __tablename__ = "ticket_categories"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(sa.String(128), unique=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        sa.DateTime(timezone=True),
+        server_default=sa.func.now(),
+    )
+
+    tickets: Mapped[list["Ticket"]] = relationship(
+        back_populates="category",
+        order_by="Ticket.id",
+    )
+
+
+@final
 class Ticket(Base):
     __tablename__ = "tickets"
 
@@ -49,6 +66,10 @@ class Ticket(Base):
         index=True,
         server_default=sa.text("'MEDIUM'"),
     )
+    category_id: Mapped[int] = mapped_column(
+        sa.ForeignKey("ticket_categories.id", ondelete="RESTRICT"),
+        index=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True),
         server_default=sa.func.now(),
@@ -67,6 +88,7 @@ class Ticket(Base):
         back_populates="assigned_tickets",
         foreign_keys=[assignee_id],
     )
+    category: Mapped["TicketCategory"] = relationship(back_populates="tickets")
     messages: Mapped[list["TicketMessage"]] = relationship(
         back_populates="ticket",
         cascade="all, delete-orphan",

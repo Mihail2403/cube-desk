@@ -3,12 +3,14 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from project import models
+from project.routers.http.ticket_categories.schemas import TicketCategoryBriefResponse
 
 
 class TicketCreateRequest(BaseModel):
     title: str = Field(min_length=1, max_length=256)
     description: str | None = Field(default=None, max_length=10_000)
     priority: models.Ticket.TicketPriority | None = None
+    category_id: int | None = None
 
 
 class TicketUpdateRequest(BaseModel):
@@ -17,6 +19,7 @@ class TicketUpdateRequest(BaseModel):
     status: models.Ticket.TicketStatus | None = None
     priority: models.Ticket.TicketPriority | None = None
     assignee_id: int | None = None
+    category_id: int | None = None
 
 
 class TicketAssigneeResponse(BaseModel):
@@ -33,6 +36,8 @@ class TicketResponse(BaseModel):
     id: int
     author_id: int
     author: TicketAuthorResponse
+    category_id: int
+    category: TicketCategoryBriefResponse
     title: str
     description: str
     status: models.Ticket.TicketStatus

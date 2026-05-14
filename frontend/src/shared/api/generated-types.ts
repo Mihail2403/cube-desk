@@ -106,66 +106,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/stats": {
+    "/api/ticket-categories": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Admin Dashboard Stats */
-        get: operations["admin_dashboard_stats_api_admin_stats_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/admin/users/{user_id}/role": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Admin Update User Role */
-        patch: operations["admin_update_user_role_api_admin_users__user_id__role_patch"];
-        trace?: never;
-    };
-    "/api/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Users */
-        get: operations["list_users_api_users_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/users/support": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Support Users */
-        get: operations["list_support_users_api_users_support_get"];
+        /** List Ticket Categories */
+        get: operations["list_ticket_categories_api_ticket_categories_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -228,6 +177,113 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Users
+         * @description Список пользователей: для роли USER — только себя; для SUPPORT/ADMIN — все активные.
+         */
+        get: operations["list_users_api_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/support": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Support Users */
+        get: operations["list_support_users_api_users_support_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Dashboard Stats */
+        get: operations["admin_dashboard_stats_api_admin_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{user_id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Admin Update User Role */
+        patch: operations["admin_update_user_role_api_admin_users__user_id__role_patch"];
+        trace?: never;
+    };
+    "/api/admin/ticket-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin List Ticket Categories */
+        get: operations["admin_list_ticket_categories_api_admin_ticket_categories_get"];
+        put?: never;
+        /** Admin Create Ticket Category */
+        post: operations["admin_create_ticket_category_api_admin_ticket_categories_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/ticket-categories/{category_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Admin Delete Ticket Category */
+        delete: operations["admin_delete_ticket_category_api_admin_ticket_categories__category_id__delete"];
+        options?: never;
+        head?: never;
+        /** Admin Update Ticket Category */
+        patch: operations["admin_update_ticket_category_api_admin_ticket_categories__category_id__patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -256,23 +312,6 @@ export interface components {
             active_users_role_support: number;
             /** Active Users Role Admin */
             active_users_role_admin: number;
-        };
-        /** SupportUserResponse */
-        SupportUserResponse: {
-            /** Id */
-            id: number;
-            /** Login */
-            login: string;
-            role: components["schemas"]["UserRole"];
-        };
-        /**
-         * UserRole
-         * @enum {string}
-         */
-        UserRole: "USER" | "SUPPORT" | "ADMIN";
-        /** UserRoleUpdateRequest */
-        UserRoleUpdateRequest: {
-            role: components["schemas"]["UserRole"];
         };
         /** AuthLoginRequest */
         AuthLoginRequest: {
@@ -321,14 +360,66 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** SupportUserResponse */
+        SupportUserResponse: {
+            /** Id */
+            id: number;
+            /** Login */
+            login: string;
+            role: components["schemas"]["UserRole"];
+        };
+        /** TicketAssigneeResponse */
+        TicketAssigneeResponse: {
+            /** Id */
+            id: number;
+            /** Login */
+            login: string;
+        };
+        /** TicketAuthorResponse */
+        TicketAuthorResponse: {
+            /** Id */
+            id: number;
+            /** Login */
+            login: string;
+        };
+        /** TicketCategoryBriefResponse */
+        TicketCategoryBriefResponse: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+        };
+        /** TicketCategoryCreateRequest */
+        TicketCategoryCreateRequest: {
+            /** Name */
+            name: string;
+        };
+        /** TicketCategoryResponse */
+        TicketCategoryResponse: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** TicketCategoryUpdateRequest */
+        TicketCategoryUpdateRequest: {
+            /** Name */
+            name: string;
+        };
         /** TicketCreateRequest */
         TicketCreateRequest: {
             /** Title */
             title: string;
             /** Description */
             description?: string | null;
-            /** Priority */
             priority?: components["schemas"]["TicketPriority"] | null;
+            /** Category Id */
+            category_id?: number | null;
         };
         /** TicketMessageAttachmentResponse */
         TicketMessageAttachmentResponse: {
@@ -352,20 +443,6 @@ export interface components {
             /** Download Url */
             download_url: string;
         };
-        /** TicketAssigneeResponse */
-        TicketAssigneeResponse: {
-            /** Id */
-            id: number;
-            /** Login */
-            login: string;
-        };
-        /** TicketAuthorResponse */
-        TicketAuthorResponse: {
-            /** Id */
-            id: number;
-            /** Login */
-            login: string;
-        };
         /** TicketMessageResponse */
         TicketMessageResponse: {
             /** Id */
@@ -388,6 +465,11 @@ export interface components {
              */
             attachments: components["schemas"]["TicketMessageAttachmentResponse"][];
         };
+        /**
+         * TicketPriority
+         * @enum {string}
+         */
+        TicketPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
         /** TicketResponse */
         TicketResponse: {
             /** Id */
@@ -395,6 +477,9 @@ export interface components {
             /** Author Id */
             author_id: number;
             author: components["schemas"]["TicketAuthorResponse"];
+            /** Category Id */
+            category_id: number;
+            category: components["schemas"]["TicketCategoryBriefResponse"];
             /** Title */
             title: string;
             /** Description */
@@ -403,7 +488,6 @@ export interface components {
             priority: components["schemas"]["TicketPriority"];
             /** Assignee Id */
             assignee_id?: number | null;
-            /** Assignee */
             assignee?: components["schemas"]["TicketAssigneeResponse"] | null;
             /**
              * Created At
@@ -421,11 +505,6 @@ export interface components {
          * @enum {string}
          */
         TicketStatus: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
-        /**
-         * TicketPriority
-         * @enum {string}
-         */
-        TicketPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
         /** TicketUpdateRequest */
         TicketUpdateRequest: {
             /** Title */
@@ -436,6 +515,8 @@ export interface components {
             priority?: components["schemas"]["TicketPriority"] | null;
             /** Assignee Id */
             assignee_id?: number | null;
+            /** Category Id */
+            category_id?: number | null;
         };
         /** UserMeResponse */
         UserMeResponse: {
@@ -445,6 +526,16 @@ export interface components {
             login: string;
             /** Is Active */
             is_active: boolean;
+            role: components["schemas"]["UserRole"];
+        };
+        /**
+         * UserRole
+         * @enum {string}
+         */
+        UserRole: "USER" | "SUPPORT" | "ADMIN";
+        /** UserRoleUpdateRequest */
+        UserRoleUpdateRequest: {
+            role: components["schemas"]["UserRole"];
         };
         /** ValidationError */
         ValidationError: {
@@ -636,7 +727,7 @@ export interface operations {
             };
         };
     };
-    admin_dashboard_stats_api_admin_stats_get: {
+    list_ticket_categories_api_ticket_categories_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -651,109 +742,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AdminDashboardStatsResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    admin_update_user_role_api_admin_users__user_id__role_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserRoleUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SupportUserResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_users_api_users_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SupportUserResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_support_users_api_users_support_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SupportUserResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["TicketCategoryResponse"][];
                 };
             };
         };
@@ -763,6 +752,7 @@ export interface operations {
             query?: {
                 status?: components["schemas"]["TicketStatus"] | null;
                 priority?: components["schemas"]["TicketPriority"] | null;
+                category_id?: number | null;
                 updated_at__gt?: string | null;
                 search?: string | null;
                 limit?: number;
@@ -950,6 +940,218 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TicketMessageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_users_api_users_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportUserResponse"][];
+                };
+            };
+        };
+    };
+    list_support_users_api_users_support_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportUserResponse"][];
+                };
+            };
+        };
+    };
+    admin_dashboard_stats_api_admin_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDashboardStatsResponse"];
+                };
+            };
+        };
+    };
+    admin_update_user_role_api_admin_users__user_id__role_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserRoleUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportUserResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_list_ticket_categories_api_admin_ticket_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketCategoryResponse"][];
+                };
+            };
+        };
+    };
+    admin_create_ticket_category_api_admin_ticket_categories_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketCategoryCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketCategoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_delete_ticket_category_api_admin_ticket_categories__category_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_update_ticket_category_api_admin_ticket_categories__category_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketCategoryUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketCategoryResponse"];
                 };
             };
             /** @description Validation Error */

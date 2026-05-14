@@ -4,6 +4,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useTicketCategories } from '@/entities/ticket-category/model/use-ticket-categories';
 import { useUpdateTicket } from '@/entities/ticket/model/use-tickets';
 import { useUsers } from '@/entities/user/model/use-users';
 import type { TicketResponse, TicketStatus, TicketPriority, UserRole } from '@/shared/types/api';
@@ -18,6 +19,7 @@ const baseSchema = z.object({
   description: z.string().max(10000).nullable(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
+  category_id: z.coerce.number().int().positive(),
 });
 
 type FormValues = z.infer<typeof baseSchema> & { assignee_id?: number | null };
@@ -55,6 +57,7 @@ export const TicketEditForm = ({
 }: TicketEditFormProps) => {
   const { enqueueSnackbar } = useSnackbar();
   const updateTicket = useUpdateTicket(ticket.id);
+  const { data: categories = [], isLoading: categoriesLoading } = useTicketCategories();
   const { data: allUsers = [], isLoading: usersLoading } = useUsers({
     enabled: canAssignAssignee,
   });
@@ -90,6 +93,7 @@ export const TicketEditForm = ({
       description: ticket.description || '',
       status: ticket.status,
       priority: ticket.priority,
+      category_id: ticket.category_id,
       ...(canAssignAssignee ? { assignee_id: ticket.assignee_id ?? null } : {}),
     },
   });
@@ -100,6 +104,7 @@ export const TicketEditForm = ({
       description: ticket.description || '',
       status: ticket.status,
       priority: ticket.priority,
+      category_id: ticket.category_id,
       ...(canAssignAssignee ? { assignee_id: ticket.assignee_id ?? null } : {}),
     });
   }, [
@@ -109,6 +114,7 @@ export const TicketEditForm = ({
     ticket.description,
     ticket.status,
     ticket.priority,
+    ticket.category_id,
     ticket.assignee_id,
     ticket.updated_at,
     canAssignAssignee,
@@ -120,6 +126,7 @@ export const TicketEditForm = ({
         title: values.title,
         description: values.description === '' ? null : values.description,
         priority: values.priority,
+        category_id: values.category_id,
         ...(canChangeStatus ? { status: values.status } : {}),
         ...(canAssignAssignee && 'assignee_id' in values ? { assignee_id: values.assignee_id } : {}),
       });
@@ -193,6 +200,27 @@ export const TicketEditForm = ({
               {priorities.map((p) => (
                 <MenuItem key={p} value={p}>
                   {priorityLabel[p]}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+        />
+        <Controller
+          name="category_id"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              select
+              label="Категория"
+              fullWidth
+              disabled={categoriesLoading}
+              error={Boolean(errors.category_id)}
+              helperText={errors.category_id?.message}
+            >
+              {categories.map((c) => (
+                <MenuItem key={c.id} value={c.id}>
+                  {c.name}
                 </MenuItem>
               ))}
             </TextField>

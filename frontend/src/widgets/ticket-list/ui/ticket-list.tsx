@@ -26,6 +26,13 @@ export const TicketList = ({
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'title', headerName: 'Заголовок', flex: 1, minWidth: 200 },
     {
+      field: 'category',
+      headerName: 'Категория',
+      minWidth: 130,
+      flex: 0.2,
+      valueGetter: (_v, row) => row.category.name,
+    },
+    {
       field: 'status',
       headerName: 'Статус',
       width: 140,

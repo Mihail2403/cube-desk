@@ -3,7 +3,8 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from project import models
-from project.core.exceptions import ConflictError, NotFoundError
+from project.core.exceptions import BadRequestError, ConflictError, NotFoundError
+from project.repositories import ticket_categories as ticket_categories_repo
 from project.repositories import tickets as tickets_repo
 from project.repositories import users as users_repo
 
@@ -19,8 +20,14 @@ async def get_dashboard_stats(session: AsyncSession) -> dict[str, int]:
     tickets_in_progress = await tickets_repo.count_tickets(
         session, status=models.Ticket.TicketStatus.IN_PROGRESS
     )
-    tickets_resolved = await tickets_repo.count_tickets(session, status=models.Ticket.TicketStatus.RESOLVED)
-    tickets_closed = await tickets_repo.count_tickets(session, status=models.Ticket.TicketStatus.CLOSED)
+    tickets_resolved = await tickets_repo.count_tickets(
+        session,
+        status=models.Ticket.TicketStatus.RESOLVED,
+    )
+    tickets_closed = await tickets_repo.count_tickets(
+        session,
+        status=models.Ticket.TicketStatus.CLOSED,
+    )
 
     active_users_total = await users_repo.count_active_users(session)
     by_role = await users_repo.count_active_users_by_role(session)
@@ -62,3 +69,76 @@ async def update_user_role(
     await session.commit()
     await session.refresh(user)
     return user
+
+
+async def list_ticket_categories(session: AsyncSession) -> list[models.TicketCategory]:
+    return await ticket_categories_repo.list_categories(session)
+
+
+async def create_ticket_category(
+    session: AsyncSession,
+    *,
+    name: str,
+) -> models.TicketCategory:
+    norm = name.strip()
+    if not norm:
+        raise BadRequestError("Укажите название категории")
+
+    existing = await ticket_categories_repo.get_category_by_name(session, name=norm)
+    if existing is not None:
+        raise ConflictError("Категория с таким названием уже существует")
+
+    cat = await ticket_categories_repo.create_category(
+        session,
+        instance=models.TicketCategory(name=norm),
+    )
+    await session.commit()
+    await session.refresh(cat)
+    return cat
+
+
+async def update_ticket_category(
+    session: AsyncSession,
+    *,
+    category_id: int,
+    name: str,
+) -> models.TicketCategory:
+    cat = await ticket_categories_repo.get_category(session, category_id=category_id)
+    if cat is None:
+        raise NotFoundError("Категория не найдена")
+
+    norm = name.strip()
+    if not norm:
+        raise BadRequestError("Укажите название категории")
+
+    other = await ticket_categories_repo.get_category_by_name(session, name=norm)
+    if other is not None and other.id != cat.id:
+        raise ConflictError("Категория с таким названием уже существует")
+
+    cat.name = norm
+    await session.commit()
+    await session.refresh(cat)
+    return cat
+
+
+async def delete_ticket_category(
+    session: AsyncSession,
+    *,
+    category_id: int,
+) -> None:
+    cat = await ticket_categories_repo.get_category(session, category_id=category_id)
+    if cat is None:
+        raise NotFoundError("Категория не найдена")
+
+    in_use = await ticket_categories_repo.count_tickets_in_category(
+        session,
+        category_id=category_id,
+    )
+    if in_use > 0:
+        raise ConflictError(
+            "Нельзя удалить категорию, к которой привязаны тикеты",
+            details={"tickets_count": in_use},
+        )
+
+    await ticket_categories_repo.delete_category(session, category=cat)
+    await session.commit()

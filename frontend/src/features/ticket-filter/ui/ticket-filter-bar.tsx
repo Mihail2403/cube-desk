@@ -1,5 +1,6 @@
 import { FormControl, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
+import { useTicketCategories } from '@/entities/ticket-category/model/use-ticket-categories';
 import type { TicketPriority, TicketStatus } from '@/shared/types/api';
 
 interface TicketFilterBarProps {
@@ -7,6 +8,8 @@ interface TicketFilterBarProps {
   onStatusChange: (v: TicketStatus | '') => void;
   priority: TicketPriority | '';
   onPriorityChange: (v: TicketPriority | '') => void;
+  categoryId: number | '';
+  onCategoryIdChange: (v: number | '') => void;
   searchText: string;
   onSearchTextChange: (v: string) => void;
   ticketIdFilter: string;
@@ -34,17 +37,26 @@ export const TicketFilterBar = ({
   onStatusChange,
   priority,
   onPriorityChange,
+  categoryId,
+  onCategoryIdChange,
   searchText,
   onSearchTextChange,
   ticketIdFilter,
   onTicketIdFilterChange,
 }: TicketFilterBarProps) => {
+  const { data: categories = [] } = useTicketCategories();
+
   const handleStatus = (e: SelectChangeEvent) => {
     onStatusChange((e.target.value || '') as TicketStatus | '');
   };
 
   const handlePriority = (e: SelectChangeEvent) => {
     onPriorityChange((e.target.value || '') as TicketPriority | '');
+  };
+
+  const handleCategory = (e: SelectChangeEvent) => {
+    const v = e.target.value;
+    onCategoryIdChange(v === '' ? '' : Number(v));
   };
 
   return (
@@ -75,6 +87,22 @@ export const TicketFilterBar = ({
           {priorityOptions.map((o) => (
             <MenuItem key={o.label + o.value} value={o.value}>
               {o.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl size="small" sx={{ minWidth: 200 }}>
+        <InputLabel id="ticket-category-filter">Категория</InputLabel>
+        <Select
+          labelId="ticket-category-filter"
+          label="Категория"
+          value={categoryId === '' ? '' : String(categoryId)}
+          onChange={handleCategory}
+        >
+          <MenuItem value="">Все категории</MenuItem>
+          {categories.map((c) => (
+            <MenuItem key={c.id} value={String(c.id)}>
+              {c.name}
             </MenuItem>
           ))}
         </Select>

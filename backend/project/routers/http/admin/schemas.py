@@ -19,3 +19,11 @@ class AdminDashboardStatsResponse(BaseModel):
 
 class UserRoleUpdateRequest(BaseModel):
     role: models.User.UserRole
+
+
+class TicketCategoryCreateRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=128)
+
+
+class TicketCategoryUpdateRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=128)

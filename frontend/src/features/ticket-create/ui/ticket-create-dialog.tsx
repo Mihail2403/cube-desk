@@ -12,8 +12,10 @@ import {
   Typography,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useTicketCategories } from '@/entities/ticket-category/model/use-ticket-categories';
 import { useCreateTicket } from '@/entities/ticket/model/use-tickets';
 import { applyApiValidationToForm, mapAxiosErrorToApiError } from '@/shared/api/error-mapper';
 import type { TicketPriority } from '@/shared/types/api';
@@ -35,6 +37,7 @@ const schema = z.object({
     .optional()
     .transform((v) => (v === '' ? undefined : v)),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
+  category_id: z.coerce.number().int().positive('Выберите категорию'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -47,6 +50,9 @@ interface TicketCreateDialogProps {
 export const TicketCreateDialog = ({ open, onClose }: TicketCreateDialogProps) => {
   const { enqueueSnackbar } = useSnackbar();
   const createTicket = useCreateTicket();
+  const { data: categories = [], isLoading: categoriesLoading } = useTicketCategories({
+    enabled: open,
+  });
   const {
     register,
     control,
@@ -56,8 +62,19 @@ export const TicketCreateDialog = ({ open, onClose }: TicketCreateDialogProps) =
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { title: '', description: '', priority: 'MEDIUM' },
+    defaultValues: { title: '', description: '', priority: 'MEDIUM', category_id: 0 },
   });
+
+  useEffect(() => {
+    if (!open) return;
+    const firstId = categories[0]?.id;
+    reset({
+      title: '',
+      description: '',
+      priority: 'MEDIUM',
+      category_id: firstId ?? 0,
+    });
+  }, [open, categories, reset]);
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -65,6 +82,7 @@ export const TicketCreateDialog = ({ open, onClose }: TicketCreateDialogProps) =
         title: values.title,
         description: values.description ?? null,
         priority: values.priority,
+        category_id: values.category_id,
       });
       enqueueSnackbar('Тикет создан', { variant: 'success' });
       reset();
@@ -126,11 +144,39 @@ export const TicketCreateDialog = ({ open, onClose }: TicketCreateDialogProps) =
                 </TextField>
               )}
             />
+            <Controller
+              name="category_id"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  label="Категория"
+                  fullWidth
+                  disabled={categoriesLoading || categories.length === 0}
+                  error={Boolean(errors.category_id)}
+                  helperText={
+                    errors.category_id?.message ??
+                    (categories.length === 0 && !categoriesLoading ? 'Нет доступных категорий' : undefined)
+                  }
+                >
+                  {categories.map((c) => (
+                    <MenuItem key={c.id} value={c.id}>
+                      {c.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Отмена</Button>
-          <Button type="submit" variant="contained" disabled={createTicket.isPending}>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={createTicket.isPending || categoriesLoading || categories.length === 0}
+          >
             {createTicket.isPending ? 'Создание…' : 'Создать'}
           </Button>
         </DialogActions>

@@ -23,13 +23,16 @@ export const TicketsPage = () => {
     pageSize: DEFAULT_TICKETS_PAGE_SIZE,
   });
 
+  const [categoryId, setCategoryId] = useState<number | ''>('');
+
   useEffect(() => {
     setPaginationModel((p) => ({ ...p, page: 0 }));
-  }, [status, priority, searchText]);
+  }, [status, priority, categoryId, searchText]);
 
   const { data: rows = [], isLoading } = useTicketsList({
     status: status || undefined,
     priority: priority || undefined,
+    category_id: categoryId === '' ? undefined : categoryId,
     search: deferredSearch || undefined,
     limit: paginationModel.pageSize,
     offset: paginationModel.page * paginationModel.pageSize,
@@ -73,6 +76,8 @@ export const TicketsPage = () => {
           onStatusChange={setStatus}
           priority={priority}
           onPriorityChange={setPriority}
+          categoryId={categoryId}
+          onCategoryIdChange={setCategoryId}
           searchText={searchText}
           onSearchTextChange={setSearchText}
           ticketIdFilter={ticketIdFilter}

@@ -1,6 +1,12 @@
 import { httpClient } from '@/shared/api/http-client';
 import type { components } from '@/shared/api/generated-types';
-import type { SupportUserResponse, UserRole } from '@/shared/types/api';
+import type {
+  SupportUserResponse,
+  TicketCategoryCreateRequest,
+  TicketCategoryResponse,
+  TicketCategoryUpdateRequest,
+  UserRole,
+} from '@/shared/types/api';
 
 export type AdminDashboardStatsResponse = components['schemas']['AdminDashboardStatsResponse'];
 
@@ -22,4 +28,29 @@ export const patchUserRole = async ({
     role,
   });
   return data;
+};
+
+export const createTicketCategory = async (
+  body: TicketCategoryCreateRequest,
+): Promise<TicketCategoryResponse> => {
+  const { data } = await httpClient.post<TicketCategoryResponse>('/api/admin/ticket-categories', body);
+  return data;
+};
+
+export const updateTicketCategory = async ({
+  categoryId,
+  body,
+}: {
+  categoryId: number;
+  body: TicketCategoryUpdateRequest;
+}): Promise<TicketCategoryResponse> => {
+  const { data } = await httpClient.patch<TicketCategoryResponse>(
+    `/api/admin/ticket-categories/${categoryId}`,
+    body,
+  );
+  return data;
+};
+
+export const deleteTicketCategory = async (categoryId: number): Promise<void> => {
+  await httpClient.delete(`/api/admin/ticket-categories/${categoryId}`);
 };

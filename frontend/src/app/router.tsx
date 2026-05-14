@@ -9,6 +9,7 @@ import { NotFoundPage } from '@/pages/not-found-page';
 import { RegisterPage } from '@/pages/register-page';
 import { AdminShell } from '@/pages/admin/admin-shell';
 import { AdminDashboardPage } from '@/pages/admin/admin-dashboard-page';
+import { AdminTicketCategoriesPage } from '@/pages/admin/admin-ticket-categories-page';
 import { AdminUsersPage } from '@/pages/admin/admin-users-page';
 import { TicketPage } from '@/pages/ticket-page';
 import { TicketsPage } from '@/pages/tickets-page';
@@ -36,6 +37,7 @@ export const AppRouter = () => (
           <Route path="/admin" element={<AdminShell />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="users" element={<AdminUsersPage />} />
+            <Route path="ticket-categories" element={<AdminTicketCategoriesPage />} />
           </Route>
         </Route>
       </Route>

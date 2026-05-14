@@ -41,6 +41,7 @@ async def get_ticket(
         .options(
             selectinload(models.Ticket.author),
             selectinload(models.Ticket.assignee),
+            selectinload(models.Ticket.category),
         )
         .limit(1)
     )
@@ -55,6 +56,7 @@ async def get_tickets(
     author_id: int | None = None,
     status: models.Ticket.TicketStatus | None = None,
     priority: models.Ticket.TicketPriority | None = None,
+    category_id: int | None = None,
     updated_at__gt: datetime | None = None,
     search: str | None = None,
 ) -> list[models.Ticket]:
@@ -65,6 +67,8 @@ async def get_tickets(
         filters.append(models.Ticket.status == status)
     if priority is not None:
         filters.append(models.Ticket.priority == priority)
+    if category_id is not None:
+        filters.append(models.Ticket.category_id == category_id)
     if updated_at__gt is not None:
         filters.append(models.Ticket.updated_at > updated_at__gt)
     if search:
@@ -76,6 +80,7 @@ async def get_tickets(
         .options(
             selectinload(models.Ticket.author),
             selectinload(models.Ticket.assignee),
+            selectinload(models.Ticket.category),
         )
         .order_by(models.Ticket.id.desc())
         .limit(limit)
