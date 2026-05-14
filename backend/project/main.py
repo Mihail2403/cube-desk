@@ -9,11 +9,13 @@ from project.core.config import config
 from project.core.database.engine import engine
 from project.routers.http import api_router
 from project.routers.http.exceptions import setup_exception_handlers
+from project.services.ai.qdrant_store import ticket_solution_vector_store
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
+    await ticket_solution_vector_store.close()
     await engine.dispose()
 
 

@@ -36,6 +36,9 @@ class Config(BaseSettings):
     ATTACHMENTS_MAX_FILES: int = 10
     ATTACHMENTS_MAX_FILE_SIZE_BYTES: int = 10 * 1024 * 1024
 
+    # Qdrant + local embeddings (similar closed tickets)
+    QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_COLLECTION: str = "ticket_solutions"
     EMBEDDING_MODEL_NAME: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     EMBEDDING_VECTOR_SIZE: int = 384
 
