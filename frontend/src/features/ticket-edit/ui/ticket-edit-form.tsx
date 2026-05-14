@@ -6,15 +6,18 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useUpdateTicket } from '@/entities/ticket/model/use-tickets';
 import { useUsers } from '@/entities/user/model/use-users';
-import type { TicketResponse, TicketStatus, UserRole } from '@/shared/types/api';
+import type { TicketResponse, TicketStatus, TicketPriority, UserRole } from '@/shared/types/api';
 import { applyApiValidationToForm, mapAxiosErrorToApiError } from '@/shared/api/error-mapper';
 
 const statuses: TicketStatus[] = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+
+const priorities: TicketPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
 
 const baseSchema = z.object({
   title: z.string().min(1).max(256),
   description: z.string().max(10000).nullable(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED']),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
 });
 
 type FormValues = z.infer<typeof baseSchema> & { assignee_id?: number | null };
@@ -34,6 +37,13 @@ const statusLabel: Record<TicketStatus, string> = {
   IN_PROGRESS: 'В работе',
   RESOLVED: 'Решён',
   CLOSED: 'Закрыт',
+};
+
+const priorityLabel: Record<TicketPriority, string> = {
+  LOW: 'Низкий',
+  MEDIUM: 'Обычный',
+  HIGH: 'Высокий',
+  URGENT: 'Срочный',
 };
 
 export const TicketEditForm = ({
@@ -79,6 +89,7 @@ export const TicketEditForm = ({
       title: ticket.title,
       description: ticket.description || '',
       status: ticket.status,
+      priority: ticket.priority,
       ...(canAssignAssignee ? { assignee_id: ticket.assignee_id ?? null } : {}),
     },
   });
@@ -88,6 +99,7 @@ export const TicketEditForm = ({
       title: ticket.title,
       description: ticket.description || '',
       status: ticket.status,
+      priority: ticket.priority,
       ...(canAssignAssignee ? { assignee_id: ticket.assignee_id ?? null } : {}),
     });
   }, [
@@ -96,6 +108,7 @@ export const TicketEditForm = ({
     ticket.title,
     ticket.description,
     ticket.status,
+    ticket.priority,
     ticket.assignee_id,
     ticket.updated_at,
     canAssignAssignee,
@@ -106,6 +119,7 @@ export const TicketEditForm = ({
       await updateTicket.mutateAsync({
         title: values.title,
         description: values.description === '' ? null : values.description,
+        priority: values.priority,
         ...(canChangeStatus ? { status: values.status } : {}),
         ...(canAssignAssignee && 'assignee_id' in values ? { assignee_id: values.assignee_id } : {}),
       });
@@ -164,6 +178,26 @@ export const TicketEditForm = ({
             )}
           />
         )}
+        <Controller
+          name="priority"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              select
+              label="Приоритет"
+              fullWidth
+              error={Boolean(errors.priority)}
+              helperText={errors.priority?.message}
+            >
+              {priorities.map((p) => (
+                <MenuItem key={p} value={p}>
+                  {priorityLabel[p]}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+        />
         {canAssignAssignee && (
           <Controller
             name="assignee_id"

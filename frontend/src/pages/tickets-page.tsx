@@ -6,13 +6,14 @@ import { useTicketsList } from '@/entities/ticket/model/use-tickets';
 import { TicketCreateDialog } from '@/features/ticket-create/ui/ticket-create-dialog';
 import { TicketFilterBar } from '@/features/ticket-filter/ui/ticket-filter-bar';
 import { DEFAULT_TICKETS_PAGE_SIZE } from '@/shared/config/constants';
-import type { TicketStatus } from '@/shared/types/api';
+import type { TicketPriority, TicketStatus } from '@/shared/types/api';
 import { TicketList } from '@/widgets/ticket-list/ui/ticket-list';
 import type { GridPaginationModel } from '@mui/x-data-grid';
 
 export const TicketsPage = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<TicketStatus | ''>('');
+  const [priority, setPriority] = useState<TicketPriority | ''>('');
   const [ticketIdFilter, setTicketIdFilter] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
@@ -22,10 +23,11 @@ export const TicketsPage = () => {
 
   useEffect(() => {
     setPaginationModel((p) => ({ ...p, page: 0 }));
-  }, [status]);
+  }, [status, priority]);
 
   const { data: rows = [], isLoading } = useTicketsList({
     status: status || undefined,
+    priority: priority || undefined,
     limit: paginationModel.pageSize,
     offset: paginationModel.page * paginationModel.pageSize,
   });
@@ -66,6 +68,8 @@ export const TicketsPage = () => {
         <TicketFilterBar
           status={status}
           onStatusChange={setStatus}
+          priority={priority}
+          onPriorityChange={setPriority}
           ticketIdFilter={ticketIdFilter}
           onTicketIdFilterChange={setTicketIdFilter}
         />

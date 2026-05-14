@@ -1,8 +1,14 @@
 import { httpClient } from '@/shared/api/http-client';
-import type { TicketCreateRequest, TicketResponse, TicketUpdateRequest } from '@/shared/types/api';
+import type {
+  TicketCreateRequest,
+  TicketPriority,
+  TicketResponse,
+  TicketUpdateRequest,
+} from '@/shared/types/api';
 
 export interface GetTicketsParams {
   status?: string | null;
+  priority?: TicketPriority | null;
   updated_at__gt?: string | null;
   limit?: number;
   offset?: number;

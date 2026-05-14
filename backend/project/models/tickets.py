@@ -22,6 +22,12 @@ class Ticket(Base):
         RESOLVED = "RESOLVED"
         CLOSED = "CLOSED"
 
+    class TicketPriority(StrEnum):
+        LOW = "LOW"
+        MEDIUM = "MEDIUM"
+        HIGH = "HIGH"
+        URGENT = "URGENT"
+
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     author_id: Mapped[int] = mapped_column(
         sa.ForeignKey("users.id", ondelete="CASCADE"),
@@ -37,6 +43,11 @@ class Ticket(Base):
     status: Mapped[TicketStatus] = mapped_column(
         sa.String(32),
         index=True,
+    )
+    priority: Mapped[TicketPriority] = mapped_column(
+        sa.String(32),
+        index=True,
+        server_default=sa.text("'MEDIUM'"),
     )
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True),

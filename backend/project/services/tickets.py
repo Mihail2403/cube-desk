@@ -32,6 +32,7 @@ async def create_ticket(
     author_id: int,
     title: str,
     description: str | None,
+    priority: models.Ticket.TicketPriority | None = None,
 ) -> models.Ticket:
     ticket = await tickets_repo.create_ticket(
         session,
@@ -40,6 +41,7 @@ async def create_ticket(
             title=title,
             description=description or "",
             status=models.Ticket.TicketStatus.OPEN,
+            priority=priority or models.Ticket.TicketPriority.MEDIUM,
         ),
     )
     await session.commit()
@@ -56,6 +58,7 @@ async def get_tickets(
     limit: int,
     offset: int,
     status: models.Ticket.TicketStatus | None = None,
+    priority: models.Ticket.TicketPriority | None = None,
     updated_at__gt: datetime | None = None,
 ) -> list[models.Ticket]:
     if user.role == models.User.UserRole.USER:
@@ -63,6 +66,7 @@ async def get_tickets(
             session,
             author_id=user.id,
             status=status,
+            priority=priority,
             updated_at__gt=updated_at__gt,
             limit=limit,
             offset=offset,
@@ -71,6 +75,7 @@ async def get_tickets(
         return await tickets_repo.get_tickets(
             session,
             status=status,
+            priority=priority,
             updated_at__gt=updated_at__gt,
             limit=limit,
             offset=offset,
@@ -106,6 +111,8 @@ async def update_ticket(
         ticket.description = patch_data["description"] or ""
     if "status" in patch_data:
         ticket.status = patch_data["status"]
+    if "priority" in patch_data:
+        ticket.priority = patch_data["priority"]
 
     if "assignee_id" in patch_data:
         if user.role == models.User.UserRole.USER:

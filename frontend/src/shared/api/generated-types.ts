@@ -276,6 +276,7 @@ export interface components {
             title: string;
             /** Description */
             description?: string | null;
+            priority?: components["schemas"]["TicketPriority"] | null;
         };
         /** TicketMessageAttachmentResponse */
         TicketMessageAttachmentResponse: {
@@ -333,6 +334,7 @@ export interface components {
             /** Description */
             description: string;
             status: components["schemas"]["TicketStatus"];
+            priority: components["schemas"]["TicketPriority"];
             /** Assignee Id */
             assignee_id?: number | null;
             assignee?: components["schemas"]["TicketAssigneeResponse"] | null;
@@ -352,6 +354,11 @@ export interface components {
          * @enum {string}
          */
         TicketStatus: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+        /**
+         * TicketPriority
+         * @enum {string}
+         */
+        TicketPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
         /** TicketUpdateRequest */
         TicketUpdateRequest: {
             /** Title */
@@ -359,6 +366,7 @@ export interface components {
             /** Description */
             description?: string | null;
             status?: components["schemas"]["TicketStatus"] | null;
+            priority?: components["schemas"]["TicketPriority"] | null;
             /** Assignee Id */
             assignee_id?: number | null;
         };
@@ -571,6 +579,7 @@ export interface operations {
         parameters: {
             query?: {
                 status?: components["schemas"]["TicketStatus"] | null;
+                priority?: components["schemas"]["TicketPriority"] | null;
                 updated_at__gt?: string | null;
                 limit?: number;
                 offset?: number;

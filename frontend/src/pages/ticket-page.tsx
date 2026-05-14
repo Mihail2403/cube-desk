@@ -8,6 +8,7 @@ import { MessageComposer } from '@/features/send-message/ui/message-composer';
 import { TicketEditForm } from '@/features/ticket-edit/ui/ticket-edit-form';
 import { mapAxiosErrorToApiError } from '@/shared/api/error-mapper';
 import { formatDateTime } from '@/shared/lib/format-date';
+import { PriorityChip } from '@/shared/ui/priority-chip';
 import { StatusChip } from '@/shared/ui/status-chip';
 import { MessageThread } from '@/widgets/message-thread/ui/message-thread';
 
@@ -108,6 +109,7 @@ export const TicketPage = () => {
                   #{ticket.id} {ticket.title}
                 </Typography>
                 <StatusChip status={ticket.status} />
+                <PriorityChip priority={ticket.priority} />
               </Stack>
               <Typography variant="body2" color="text.secondary">
                 Создан: {formatDateTime(ticket.created_at)} · Обновлён: {formatDateTime(ticket.updated_at)} · Автор:{' '}

@@ -58,6 +58,7 @@ async def create_ticket(
         author_id=user.id,
         title=body.title,
         description=body.description,
+        priority=body.priority,
     )
     return local_schemas.TicketResponse.model_validate(ticket, from_attributes=True)
 
@@ -67,6 +68,7 @@ async def get_tickets(
     session: Annotated[AsyncSession, Depends(get_async_session)],
     user: Annotated[models.User, Depends(get_current_active_user)],
     status: Annotated[models.Ticket.TicketStatus | None, Query()] = None,
+    priority: Annotated[models.Ticket.TicketPriority | None, Query()] = None,
     updated_at__gt: Annotated[datetime | None, Query()] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
@@ -75,6 +77,7 @@ async def get_tickets(
         session,
         user=user,
         status=status,
+        priority=priority,
         updated_at__gt=updated_at__gt,
         limit=limit,
         offset=offset,

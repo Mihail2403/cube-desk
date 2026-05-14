@@ -9,6 +9,7 @@ export type TicketResponse = components['schemas']['TicketResponse'];
 export type TicketCreateRequest = components['schemas']['TicketCreateRequest'];
 export type TicketUpdateRequest = components['schemas']['TicketUpdateRequest'];
 export type TicketStatus = components['schemas']['TicketStatus'];
+export type TicketPriority = components['schemas']['TicketPriority'];
 export type TicketMessageResponse = components['schemas']['TicketMessageResponse'];
 export type TicketMessageAttachmentResponse = components['schemas']['TicketMessageAttachmentResponse'];
 export type TicketAssigneeResponse = components['schemas']['TicketAssigneeResponse'];

@@ -41,6 +41,7 @@ async def get_tickets(
     offset: int,
     author_id: int | None = None,
     status: models.Ticket.TicketStatus | None = None,
+    priority: models.Ticket.TicketPriority | None = None,
     updated_at__gt: datetime | None = None,
 ) -> list[models.Ticket]:
     filters: list[ColumnElement[bool]] = []
@@ -48,6 +49,8 @@ async def get_tickets(
         filters.append(models.Ticket.author_id == author_id)
     if status is not None:
         filters.append(models.Ticket.status == status)
+    if priority is not None:
+        filters.append(models.Ticket.priority == priority)
     if updated_at__gt is not None:
         filters.append(models.Ticket.updated_at > updated_at__gt)
 

@@ -1,5 +1,6 @@
 import type { TicketResponse } from '@/shared/types/api';
 import { formatDateTime } from '@/shared/lib/format-date';
+import { PriorityChip } from '@/shared/ui/priority-chip';
 import { StatusChip } from '@/shared/ui/status-chip';
 import { DataGrid, type GridColDef, type GridPaginationModel, type GridRowParams } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
@@ -29,6 +30,12 @@ export const TicketList = ({
       headerName: 'Статус',
       width: 140,
       renderCell: (params) => <StatusChip status={params.row.status} />,
+    },
+    {
+      field: 'priority',
+      headerName: 'Приоритет',
+      width: 130,
+      renderCell: (params) => <PriorityChip priority={params.row.priority} />,
     },
     {
       field: 'author',

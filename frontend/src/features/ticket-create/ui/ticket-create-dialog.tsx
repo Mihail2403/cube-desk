@@ -6,15 +6,26 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  MenuItem,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useCreateTicket } from '@/entities/ticket/model/use-tickets';
 import { applyApiValidationToForm, mapAxiosErrorToApiError } from '@/shared/api/error-mapper';
+import type { TicketPriority } from '@/shared/types/api';
+
+const priorities: TicketPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+
+const priorityLabel: Record<TicketPriority, string> = {
+  LOW: 'Низкий',
+  MEDIUM: 'Обычный',
+  HIGH: 'Высокий',
+  URGENT: 'Срочный',
+};
 
 const schema = z.object({
   title: z.string().min(1, 'Укажите заголовок').max(256, 'Максимум 256 символов'),
@@ -23,6 +34,7 @@ const schema = z.object({
     .max(10000, 'Максимум 10000 символов')
     .optional()
     .transform((v) => (v === '' ? undefined : v)),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -37,13 +49,14 @@ export const TicketCreateDialog = ({ open, onClose }: TicketCreateDialogProps) =
   const createTicket = useCreateTicket();
   const {
     register,
+    control,
     handleSubmit,
     reset,
     setError,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { title: '', description: '' },
+    defaultValues: { title: '', description: '', priority: 'MEDIUM' },
   });
 
   const onSubmit = handleSubmit(async (values) => {
@@ -51,6 +64,7 @@ export const TicketCreateDialog = ({ open, onClose }: TicketCreateDialogProps) =
       await createTicket.mutateAsync({
         title: values.title,
         description: values.description ?? null,
+        priority: values.priority,
       });
       enqueueSnackbar('Тикет создан', { variant: 'success' });
       reset();
@@ -91,6 +105,26 @@ export const TicketCreateDialog = ({ open, onClose }: TicketCreateDialogProps) =
               error={Boolean(errors.description)}
               helperText={errors.description?.message}
               {...register('description')}
+            />
+            <Controller
+              name="priority"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  label="Приоритет"
+                  fullWidth
+                  error={Boolean(errors.priority)}
+                  helperText={errors.priority?.message}
+                >
+                  {priorities.map((p) => (
+                    <MenuItem key={p} value={p}>
+                      {priorityLabel[p]}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
             />
           </Stack>
         </DialogContent>

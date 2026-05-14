@@ -8,12 +8,14 @@ from project import models
 class TicketCreateRequest(BaseModel):
     title: str = Field(min_length=1, max_length=256)
     description: str | None = Field(default=None, max_length=10_000)
+    priority: models.Ticket.TicketPriority | None = None
 
 
 class TicketUpdateRequest(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=256)
     description: str | None = Field(default=None, max_length=10_000)
     status: models.Ticket.TicketStatus | None = None
+    priority: models.Ticket.TicketPriority | None = None
     assignee_id: int | None = None
 
 
@@ -34,6 +36,7 @@ class TicketResponse(BaseModel):
     title: str
     description: str
     status: models.Ticket.TicketStatus
+    priority: models.Ticket.TicketPriority
     assignee_id: int | None = None
     assignee: TicketAssigneeResponse | None = None
     created_at: datetime
