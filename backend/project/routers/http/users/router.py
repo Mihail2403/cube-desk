@@ -23,7 +23,7 @@ async def list_users(
     session: Annotated[AsyncSession, Depends(get_async_session)],
     current_user: Annotated[models.User, Depends(get_current_active_user)],
 ) -> list[local_schemas.SupportUserResponse]:
-    """Список пользователей: для роли USER — только себя; для SUPPORT/ADMIN — все активные."""
+    """List users: USER role sees only themselves; SUPPORT/ADMIN see all active users."""
     if current_user.role == models.User.UserRole.USER:
         users = [current_user]
     else:

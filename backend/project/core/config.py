@@ -11,6 +11,12 @@ class Config(BaseSettings):
 
     MODE: Literal["DEV", "TEST", "PROD"] = "DEV"
 
+    # When True, seed test users, categories,
+    # and sample tickets on API startup (skipped if MODE is PROD).
+    SEED_DEV_DATA: bool = False
+    # Shared password for all seeded accounts (fixed logins in project.services.dev_seed).
+    SEED_DEV_PASSWORD: str = "dev12345"
+
     SQLALCHEMY_ECHO: bool = False
 
     DATABASE_URL: str

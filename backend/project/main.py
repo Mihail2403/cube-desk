@@ -10,10 +10,12 @@ from project.core.database.engine import engine
 from project.routers.http import api_router
 from project.routers.http.exceptions import setup_exception_handlers
 from project.services.ai.qdrant_store import ticket_solution_vector_store
+from project.services.dev_seed import run_dev_seed_if_enabled
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await run_dev_seed_if_enabled()
     yield
     await ticket_solution_vector_store.close()
     await engine.dispose()
