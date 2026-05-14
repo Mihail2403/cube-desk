@@ -25,12 +25,15 @@ services:
     volumes:
       - ./backend:/app
       - /app/.venv
+      - hf_cache:/root/.cache/huggingface
     ports:
       - "8000:8000"
     environment:
       # Hostnames from the docker network (override localhost from .env)
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/cube_desk
       S3_ENDPOINT_URL: http://minio:9000
+      EMBEDDING_MODEL_NAME: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+      EMBEDDING_VECTOR_SIZE: "384"
     networks:
       net:
 
@@ -123,3 +126,4 @@ volumes:
   postgres_data:
   minio_data:
   web_node_modules:
+  hf_cache:

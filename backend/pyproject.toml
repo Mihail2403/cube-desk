@@ -14,7 +14,16 @@ dependencies = [
     "loguru>=0.7.3",
     "bcrypt>=5.0.0",
     "aioboto3>=14.0.0",
+    "sentence-transformers>=3.0.0",
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
 
 [dependency-groups]
 dev = [

@@ -36,5 +36,8 @@ class Config(BaseSettings):
     ATTACHMENTS_MAX_FILES: int = 10
     ATTACHMENTS_MAX_FILE_SIZE_BYTES: int = 10 * 1024 * 1024
 
+    EMBEDDING_MODEL_NAME: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    EMBEDDING_VECTOR_SIZE: int = 384
+
 
 config = Config()  # pyright: ignore[reportCallIssue]
