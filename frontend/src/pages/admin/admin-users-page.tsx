@@ -14,6 +14,7 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useUpdateUserRole } from '@/entities/admin/model/use-update-user-role';
 import { useUsers } from '@/entities/user/model/use-users';
 import type { SupportUserResponse, UserRole } from '@/shared/types/api';
+import { renderEllipsisCell } from '@/shared/ui/render-ellipsis-cell';
 
 const roleLabel: Record<UserRole, string> = {
   USER: 'Пользователь',
@@ -30,7 +31,13 @@ export const AdminUsersPage = () => {
   const columns: GridColDef<SupportUserResponse>[] = useMemo(
     () => [
       { field: 'id', headerName: 'ID', width: 90 },
-      { field: 'login', headerName: 'Логин', flex: 1, minWidth: 160 },
+      {
+        field: 'login',
+        headerName: 'Логин',
+        flex: 1,
+        minWidth: 160,
+        renderCell: (params) => renderEllipsisCell(params.value),
+      },
       {
         field: 'role',
         headerName: 'Роль',

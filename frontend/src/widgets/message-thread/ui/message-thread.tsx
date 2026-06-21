@@ -7,6 +7,7 @@ import { formatDateTime } from '@/shared/lib/format-date';
 import { isImageMimeType } from '@/shared/lib/is-image-mime';
 import { rewritePresignedUrlForBrowser } from '@/shared/lib/rewrite-presigned-url-for-browser';
 import type { TicketMessageAttachmentResponse, TicketMessageResponse } from '@/shared/types/api';
+import { breakAllSx, preWrapBreakSx } from '@/shared/ui/text-sx';
 
 interface MessageThreadProps {
   ticketId: number;
@@ -22,9 +23,17 @@ const AttachmentLink = ({ a }: { a: TicketMessageAttachmentResponse }) => (
     download={a.filename}
     target="_blank"
     rel="noopener noreferrer"
-    sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mr: 2 }}
+    title={a.filename}
+    sx={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 0.5,
+      mr: 2,
+      maxWidth: '100%',
+      ...breakAllSx,
+    }}
   >
-    <AttachFileIcon fontSize="inherit" />
+    <AttachFileIcon fontSize="inherit" sx={{ flexShrink: 0 }} />
     {a.filename} ({formatBytes(a.size)})
   </Link>
 );
@@ -57,7 +66,7 @@ const MessageAttachment = ({ a }: { a: TicketMessageAttachmentResponse }) => {
             }}
           />
         </Link>
-        <Typography variant="caption" sx={{ opacity: 0.85, wordBreak: 'break-all' }}>
+        <Typography variant="caption" sx={{ opacity: 0.85, ...breakAllSx }}>
           {a.filename} · {formatBytes(a.size)}
         </Typography>
       </Stack>
@@ -85,16 +94,26 @@ const MessageBubble = ({
       elevation={0}
       sx={{
         maxWidth: '85%',
+        minWidth: 0,
         p: 2,
         bgcolor: isOwn ? 'primary.dark' : 'action.hover',
         color: isOwn ? 'primary.contrastText' : 'text.primary',
         borderRadius: 2,
       }}
     >
-      <Typography variant="caption" sx={{ opacity: 0.85, display: 'block', mb: 0.5 }}>
+      <Typography
+        variant="caption"
+        sx={{
+          opacity: 0.85,
+          display: 'block',
+          mb: 0.5,
+          overflowWrap: 'anywhere',
+          wordBreak: 'break-word',
+        }}
+      >
         {message.author.login} · {formatDateTime(message.created_at)}
       </Typography>
-      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+      <Typography variant="body2" sx={preWrapBreakSx}>
         {message.body}
       </Typography>
       {message.attachments?.length > 0 && (

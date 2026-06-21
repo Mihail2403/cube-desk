@@ -23,6 +23,7 @@ import {
 import { useTicketCategories } from '@/entities/ticket-category/model/use-ticket-categories';
 import { formatDateTime } from '@/shared/lib/format-date';
 import type { TicketCategoryResponse } from '@/shared/types/api';
+import { renderEllipsisCell } from '@/shared/ui/render-ellipsis-cell';
 
 export const AdminTicketCategoriesPage = () => {
   const { data: rows = [], isLoading, isError } = useTicketCategories();
@@ -38,7 +39,13 @@ export const AdminTicketCategoriesPage = () => {
   const columns: GridColDef<TicketCategoryResponse>[] = useMemo(
     () => [
       { field: 'id', headerName: 'ID', width: 90 },
-      { field: 'name', headerName: 'Название', flex: 1, minWidth: 200 },
+      {
+        field: 'name',
+        headerName: 'Название',
+        flex: 1,
+        minWidth: 200,
+        renderCell: (params) => renderEllipsisCell(params.value),
+      },
       {
         field: 'created_at',
         headerName: 'Создана',

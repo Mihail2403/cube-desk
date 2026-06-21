@@ -14,6 +14,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useLogout } from '@/features/auth-logout/model/use-logout';
 import { useCurrentUser } from '@/entities/auth/model/use-current-user';
 import { useThemeMode } from '@/shared/hooks/use-theme-mode';
+import { ellipsisSx } from '@/shared/ui/text-sx';
 
 export const AppHeader = () => {
   const { data: user } = useCurrentUser();
@@ -31,7 +32,7 @@ export const AppHeader = () => {
 
   return (
     <AppBar position="sticky" color="default" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-      <Toolbar>
+      <Toolbar sx={{ minWidth: 0 }}>
         <Typography
           variant="h6"
           component={RouterLink}
@@ -63,9 +64,16 @@ export const AppHeader = () => {
         <IconButton onClick={(e) => setAnchor(e.currentTarget)} color="inherit" aria-label="Меню">
           <MenuIcon />
         </IconButton>
-        <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}>
-          <MenuItem disabled>
-            <Typography variant="body2">{user?.login}</Typography>
+        <Menu
+          anchorEl={anchor}
+          open={Boolean(anchor)}
+          onClose={() => setAnchor(null)}
+          slotProps={{ paper: { sx: { maxWidth: 320 } } }}
+        >
+          <MenuItem disabled sx={{ minWidth: 0 }}>
+            <Typography variant="body2" noWrap title={user?.login} sx={{ ...ellipsisSx, maxWidth: '100%' }}>
+              {user?.login}
+            </Typography>
           </MenuItem>
           <MenuItem
             onClick={() => {

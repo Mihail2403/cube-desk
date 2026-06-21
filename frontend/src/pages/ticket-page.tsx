@@ -10,6 +10,7 @@ import { mapAxiosErrorToApiError } from '@/shared/api/error-mapper';
 import { formatDateTime } from '@/shared/lib/format-date';
 import { PriorityChip } from '@/shared/ui/priority-chip';
 import { StatusChip } from '@/shared/ui/status-chip';
+import { preWrapBreakSx } from '@/shared/ui/text-sx';
 import { MessageThread } from '@/widgets/message-thread/ui/message-thread';
 import { SimilarSolutionsCard } from '@/widgets/similar-solutions/ui/similar-solutions-card';
 
@@ -113,7 +114,12 @@ export const TicketPage = () => {
           <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
             <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
               <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap" useFlexGap>
-                <Typography variant="h5" fontWeight={700} component="h1">
+                <Typography
+                  variant="h5"
+                  fontWeight={700}
+                  component="h1"
+                  sx={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+                >
                   #{ticket.id} {ticket.title}
                 </Typography>
                 <StatusChip status={ticket.status} />
@@ -147,23 +153,38 @@ export const TicketPage = () => {
                 <Typography component="dt" variant="body2" color="text.secondary" sx={{ m: 0, fontWeight: 500 }}>
                   Категория:
                 </Typography>
-                <Typography component="dd" variant="body2" color="text.secondary" sx={{ m: 0 }}>
+                <Typography
+                  component="dd"
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ m: 0, overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+                >
                   {ticket.category.name}
                 </Typography>
                 <Typography component="dt" variant="body2" color="text.secondary" sx={{ m: 0, fontWeight: 500 }}>
                   Автор:
                 </Typography>
-                <Typography component="dd" variant="body2" color="text.secondary" sx={{ m: 0 }}>
+                <Typography
+                  component="dd"
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ m: 0, overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+                >
                   {ticket.author.login}
                 </Typography>
                 <Typography component="dt" variant="body2" color="text.secondary" sx={{ m: 0, fontWeight: 500 }}>
                   Ответственный:
                 </Typography>
-                <Typography component="dd" variant="body2" color="text.secondary" sx={{ m: 0 }}>
+                <Typography
+                  component="dd"
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ m: 0, overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+                >
                   {ticket.assignee?.login ?? '—'}
                 </Typography>
               </Box>
-              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 1 }}>
+              <Typography variant="body2" sx={{ ...preWrapBreakSx, mt: 1 }}>
                 {ticket.description || '—'}
               </Typography>
               {ticket.resolution && (
@@ -171,7 +192,7 @@ export const TicketPage = () => {
                   <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">
                     Итоговое решение
                   </Typography>
-                  <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                  <Typography variant="body2" sx={preWrapBreakSx}>
                     {ticket.resolution}
                   </Typography>
                 </Box>

@@ -10,6 +10,7 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { useSimilarSolutions } from '@/entities/ticket/model/use-tickets';
 import type { SimilarSolutionResponse } from '@/shared/types/api';
+import { preWrapBreakSx } from '@/shared/ui/text-sx';
 
 export interface SimilarSolutionsCardProps {
   ticketId: number;
@@ -58,13 +59,19 @@ export const SimilarSolutionsCard = ({ ticketId, enabled }: SimilarSolutionsCard
               variant="subtitle1"
               fontWeight={700}
               underline="hover"
+              title={`#${item.ticket_id} ${item.title}`}
+              sx={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
             >
               #{item.ticket_id} {item.title}
             </MuiLink>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+            >
               Категория: {item.category || '—'}
             </Typography>
-            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+            <Typography variant="body2" sx={preWrapBreakSx}>
               {item.resolution || '—'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
